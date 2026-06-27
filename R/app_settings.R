@@ -1,0 +1,42 @@
+#' Add external Resources to the Application
+#'
+#' This function is internally used to add external
+#' resources inside the Shiny application.
+#'
+#' @importFrom golem add_resource_path activate_js favicon bundle_resources
+#' @noRd
+golem_add_external_resources <- function(...) {
+  add_resource_path("www", app_sys("app/www"))
+  tags$head(
+    favicon(ext = "png"),
+    bundle_resources(path = app_sys("app/www"), app_title = .packageName),
+    # includeCSS(system.file(package="table1", "table1_defaults_1.0/table1_defaults.css")),
+    ...
+  )
+}
+#' @title run_RosyFinance
+#' @param test_mode Test mode vs Real REDCap Projects.
+#' @inheritParams shiny::shinyApp
+#' @importFrom shiny shinyApp
+#' @importFrom golem with_golem_options
+#' @family Shiny Application
+#' @return shiny application
+#' @export
+run_RosyFinance <- function(onStart = NULL,
+                           enableBookmarking = NULL,
+                           uiPattern = "/",
+                           # project_names
+                           test_mode = FALSE,
+                           options = c(launch.browser = TRUE)) {
+  with_golem_options(
+    app = shinyApp(
+      ui = app_ui,
+      server = app_server,
+      onStart = onStart,
+      options = options,
+      enableBookmarking = enableBookmarking,
+      uiPattern = uiPattern
+    ),
+    golem_opts = list(test_mode = test_mode)
+  )
+}
