@@ -34,8 +34,6 @@ remotes::install_github("brandonerose/RosyFinance")
 
 ## RosyFinance Example
 
-RosyFinance can be use like this...
-
 ``` {r, echo = TRUE, warning = FALSE}
 library("RosyFinance")
 finances <- load_finances()

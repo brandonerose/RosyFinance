@@ -24,8 +24,6 @@ remotes::install_github("brandonerose/RosyFinance")
 
 ## RosyFinance Example
 
-RosyFinance can be use like this…
-
 ``` r
 library("RosyFinance")
 finances <- load_finances()
@@ -48,7 +46,7 @@ finances$calc_net_worth()
 run_RosyFinance()
 #> Loading required package: shiny
 #> 
-#> Listening on http://127.0.0.1:4266
+#> Listening on http://127.0.0.1:7755
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" alt="" width="100%" />
