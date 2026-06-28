@@ -2,9 +2,11 @@
 
 export(run_RosyFinance)
 export(run_app)
+import(dplyr)
 import(golem)
 import(shiny)
 import(shinydashboard)
+import(tibble)
 importFrom(golem,activate_js)
 importFrom(golem,add_resource_path)
 importFrom(golem,bundle_resources)

@@ -23,11 +23,11 @@ golem_add_external_resources <- function(...) {
 #' @return shiny application
 #' @export
 run_RosyFinance <- function(onStart = NULL,
-                           enableBookmarking = NULL,
-                           uiPattern = "/",
-                           # project_names
-                           test_mode = FALSE,
-                           options = c(launch.browser = TRUE)) {
+                            enableBookmarking = NULL,
+                            uiPattern = "/",
+                            # project_names
+                            test_mode = FALSE,
+                            options = c(launch.browser = TRUE)) {
   with_golem_options(
     app = shinyApp(
       ui = app_ui,

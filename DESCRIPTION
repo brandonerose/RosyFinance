@@ -6,16 +6,24 @@ Authors@R:
            comment = c(ORCID = "0009-0009-7813-1960"))
 Description: What the package does (one paragraph).
 License: GPL (>= 3)
+URL: https://github.com/brandonerose/RosyFinance
+BugReports: https://github.com/brandonerose/RosyFinance/issues
 Imports: 
+    checkmate,
     config,
+    dplyr,
     DT,
     golem,
     listviewer,
     lubridate,
+    plotly,
+    purrr,
+    R6,
     shiny,
     shinydashboard,
     shinydashboardPlus,
-    shinyWidgets
+    shinyWidgets,
+    tibble
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
@@ -24,5 +32,3 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-URL: https://github.com/brandonerose/RosyFinance
-BugReports: https://github.com/brandonerose/RosyFinance/issues

@@ -8,6 +8,14 @@
 \description{
 What the package does (one paragraph).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/brandonerose/RosyFinance}
+  \item Report bugs at \url{https://github.com/brandonerose/RosyFinance/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Brandon Rose \email{thecodingdocs@gmail.com} (\href{https://orcid.org/0009-0009-7813-1960}{ORCID})
 

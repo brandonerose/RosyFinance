@@ -21,13 +21,13 @@ app_ui <- function(request) {
           icon = shiny::icon("home")
         ),
         menuItem(
-          text = "Income",
-          tabName = "income",
+          text = "Incomes",
+          tabName = "incomes",
           icon = shiny::icon("chart-bar")
         ),
         menuItem(
-          text = "Debt",
-          tabName = "debt",
+          text = "Expenses",
+          tabName = "expenses",
           icon = shiny::icon("chart-bar")
         ),
         menuItem(
@@ -36,8 +36,8 @@ app_ui <- function(request) {
           icon = shiny::icon("chart-bar")
         ),
         menuItem(
-          text = "Expenses",
-          tabName = "expenses",
+          text = "Debts",
+          tabName = "debts",
           icon = shiny::icon("chart-bar")
         )
       ),
@@ -46,36 +46,41 @@ app_ui <- function(request) {
         tabItem("home", fluidRow(
           box(
             title = h1("Home"),
-            width = 12L
-          ),
+            width = 12L,
+            plotly::plotlyOutput("sankey")
+          )
         )),
         # home--------
-        tabItem("income", fluidRow(
+        tabItem("incomes", fluidRow(
           box(
-            title = h1("Income"),
-            width = 12L
-          ),
+            title = h1("Incomes"),
+            width = 12L,
+            DT::DTOutput("dt_incomes")
+          )
         )),
         # home--------
-        tabItem("debt", fluidRow(
+        tabItem("debts", fluidRow(
           box(
-            title = h1("Debt"),
-            width = 12L
+            title = h1("Debts"),
+            width = 12L,
+            DT::DTOutput("dt_debts")
           ),
         )),
         # home--------
         tabItem("assets", fluidRow(
           box(
             title = h1("Assets"),
-            width = 12L
-          ),
+            width = 12L,
+            DT::DTOutput("dt_assets")
+          )
         )),
         # home--------
         tabItem("expenses", fluidRow(
           box(
             title = h1("Expenses"),
-            width = 12L
-          ),
+            width = 12L,
+            DT::DTOutput("dt_expenses")
+          )
         ))
       ),
       controlbar = dbControlbar(
