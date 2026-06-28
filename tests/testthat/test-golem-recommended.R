@@ -1,4 +1,3 @@
-finances <- sample_dataset()
 test_that("app ui", {
   ui <- app_ui()
   golem::expect_shinytaglist(ui)

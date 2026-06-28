@@ -4,6 +4,9 @@
 app_server <- function(input, output, session) {
   # values ------------
   values <- reactiveValues()
+  if (!exists("finances")) {
+    finances <- sample_dataset()
+  }
   values$finances <- finances # check for missing
   output$dt_incomes <- DT::renderDT({
     make_DT_table(values$finances$data$incomes)
