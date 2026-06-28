@@ -188,25 +188,48 @@ FinancialData <- R6::R6Class(
       private$project$data$debts <- debts
       invisible(self)
     },
-    calc_margin = function(include_debts = TRUE,
-                           include_assets = FALSE) {
-      income <- sum(private$project$data$incomes$take_home, na.rm = T)
-      expenses <- sum(private$project$data$expenses$yearly_amount, na.rm = T)
+    calc_incomes = function(yearly = TRUE) {
+      incomes <- sum(private$project$data$incomes$take_home, na.rm = TRUE)
+      if(!yearly){
+        incomes <- incomes / 12
+      }
+      incomes
+    },
+    calc_expenses = function(yearly = TRUE,
+                             include_debts = TRUE,
+                             include_assets = TRUE) {
+      expenses <- sum(private$project$data$expenses$yearly_amount, na.rm = TRUE)
       if (include_debts) {
-        yearly_debt <- sum(private$project$data$debts$payment, na.rm = T) * 12
+        yearly_debt <- sum(private$project$data$debts$payment, na.rm = TRUE) * 12
         expenses <- expenses + yearly_debt
       }
       if (include_assets) {
-        # yearly_growth <- sum(private$project$data$assets$yearly_growth, na.rm = T)
-        yearly_contribution <- sum(private$project$data$assets$contribution[which(private$project$data$assets$contribution_tax_type == "Post")], na.rm = T)
+        # yearly_growth <- sum(private$project$data$assets$yearly_growth, na.rm = TRUE)
+        yearly_contribution <- sum(private$project$data$assets$contribution[which(private$project$data$assets$contribution_tax_type == "Post")], na.rm = TRUE)
         expenses <- expenses + yearly_contribution
       }
-      income - expenses
+      if(!yearly){
+        expenses <- expenses / 12
+      }
+      expenses
     },
-    calc_networth = function() {
-      assets <- sum(private$project$data$assets$value, na.rm = T)
-      debts <- sum(private$project$data$debts$value, na.rm = T)
-      assets - debts
+    calc_assets = function() {
+      sum(private$project$data$assets$value, na.rm = TRUE)
+    },
+    calc_debts= function() {
+      sum(private$project$data$debts$value, na.rm = TRUE)
+    },
+    calc_left_over = function(yearly = TRUE,
+                              include_debts = TRUE,
+                              include_assets = TRUE) {
+      incomes <- self$calc_incomes(yearly = yearly)
+      expenses <- self$calc_expenses(yearly = yearly,
+                                     include_debts = include_debts,
+                                     include_assets = include_assets)
+      incomes - expenses
+    },
+    calc_net_worth = function() {
+      self$calc_assets() - self$calc_debts()
     },
     make_sankey = function(yearly = TRUE,
                            include_assets = TRUE,
@@ -284,7 +307,7 @@ FinancialData <- R6::R6Class(
         tibble(
           source = get_id(nodes,"Combined Income"),
           target = get_id(nodes,"Total Expenses"),
-          value  = expenses$yearly_amount |> sum(na.rm = T)
+          value  = expenses$yearly_amount |> sum(na.rm = TRUE)
         ),
         # Combined → Left Over
         tibble(
@@ -296,7 +319,7 @@ FinancialData <- R6::R6Class(
         # #   source = get_id(nodes,"Combined Income"),
         # #   target = get_id(nodes,"Total Assets"),
         # #   value  = sum(incomes$value) |> magrittr::subtract(
-        # #     expenses$value |> sum(na.rm = T)
+        # #     expenses$value |> sum(na.rm = TRUE)
         # #   )
         # # ),
         # # Combined → post_tax_assets
@@ -401,7 +424,7 @@ FinancialData <- R6::R6Class(
         )
         expenses <- expenses |> bind_rows(add_on)
       }
-      expenses_order <- expenses$value |> order(decreasing = T)
+      expenses_order <- expenses$value |> order(decreasing = TRUE)
       expenses <- expenses[expenses_order, ]
       incomes$parent <- "Income"
       incomes$value <- incomes$take_home
@@ -503,6 +526,9 @@ update_entry <- function(data_list, table_name, entry_name, entry) {
   data_list
 }
 transform_data_incomes <- function(incomes) {
+  if(!is_something(incomes)){
+    return(incomes)
+  }
   # expenses <- BLANK_EXPENSES # assert
   incomes$name <- as.character(incomes$name)
   incomes$gross <- as.integer(incomes$gross)
@@ -512,6 +538,9 @@ transform_data_incomes <- function(incomes) {
   incomes
 }
 transform_data_expenses <- function(expenses) {
+  if(!is_something(expenses)){
+    return(expenses)
+  }
   expenses$name <- as.character(expenses$name)
   expenses$category <- as.character(expenses$category)
   expenses$amount <- as.integer(expenses$amount)
@@ -534,6 +563,9 @@ transform_data_expenses <- function(expenses) {
   expenses
 }
 transform_data_assets <- function(assets) {
+  if(!is_something(assets)){
+    return(assets)
+  }
   # expenses <- BLANK_EXPENSES # assert
   assets$name <- as.character(assets$name)
   assets$value <- as.integer(assets$value)
@@ -546,6 +578,9 @@ transform_data_assets <- function(assets) {
   assets
 }
 transform_data_debts <- function(debts) {
+  if(!is_something(debts)){
+    return(debts)
+  }
   # debts assert
   debts$name <- as.character(debts$name)
   debts$value <- as.integer(debts$value)
@@ -553,6 +588,7 @@ transform_data_debts <- function(debts) {
   debts$payment <- as.integer(debts$payment)
   debts$yearly_payment <- as.integer(debts$payment * 12)
   debts$yearly_interest <- as.integer(debts$value * debts$interest_rate)
+  debts$monthly_interest <- debts$yearly_interest/12
   debts$years_to_payoff <- debts$name |>
     seq_along() |>
     lapply(function(i) {
@@ -565,11 +601,26 @@ transform_data_debts <- function(debts) {
     as.integer()
   debts
 }
+transform_data_years <- function(years) {
+  if(!is_something(years)){
+    return(years)
+  }
+  # years assert
+  years$name <- as.character(years$name)
+  years$incomes <- as.integer(years$incomes)
+  years$expenses <- as.integer(years$expenses)
+  years$assets <- as.integer(years$assets)
+  years$debts <- as.integer(years$debts)
+  years$networth <- years$assets - years$debts
+  years$left_over <- years$incomes - years$expenses
+  years
+}
 transform_data <- function(data_list) {
   data_list$incomes <- transform_data_incomes(data_list$incomes)
   data_list$expenses <- transform_data_expenses(data_list$expenses)
   data_list$assets <- transform_data_assets(data_list$assets)
   data_list$debts <- transform_data_debts(data_list$debts)
+  data_list$years <- transform_data_debts(data_list$years)
   data_list
 }
 untransform_data <- function(data_list) {

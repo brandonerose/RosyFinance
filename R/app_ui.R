@@ -46,6 +46,19 @@ app_ui <- function(request) {
         tabItem("home", fluidRow(
           box(
             width = 12L,
+            fluidRow(
+              valueBoxOutput("incomes_box", width = 3),
+              valueBoxOutput("expenses_box", width = 3),
+              valueBoxOutput("assets_box", width = 3),
+              valueBoxOutput("debts_box", width = 3)
+            ),
+            fluidRow(
+              valueBoxOutput("left_over_box", width = 6),
+              valueBoxOutput("net_worth_box", width = 6)
+            )
+          ),
+          box(
+            width = 12L,
             plotly::plotlyOutput("sankey", height = "800px")
           ),
           box(
