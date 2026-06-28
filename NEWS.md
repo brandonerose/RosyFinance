@@ -1,3 +1,3 @@
 # RosyFinance (development version)
 
-* Initial dev.
+* Initial development version.
