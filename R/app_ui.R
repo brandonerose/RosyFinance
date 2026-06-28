@@ -50,7 +50,7 @@ app_ui <- function(request) {
           ),
           box(
             width = 12L,
-            plotly::plotlyOutput("treemap", height = "600px")
+            plotly::plotlyOutput("treemap", height = "800px")
           )
         )),
         # incomes--------

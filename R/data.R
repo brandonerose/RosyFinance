@@ -375,7 +375,7 @@ FinancialData <- R6::R6Class(
       assets$color <- "#15BF34"
       debts$parent <- "Debt"
       debts <- debts[which(debts$value > 0),]
-      debts$label <- paste0(debts$name, " - ", round(debts$interest *100,1), " %")
+      debts$label <- paste0(debts$name, " - ", round(debts$interest_rate *100,1), " %")
       debts$color <- "#EB7E00"
       expenses$parent <- "Expenses"
       expenses$value <- expenses$yearly_amount
