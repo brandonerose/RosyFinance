@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+library("RosyFinance")
 ```
 
 # RosyFinance <img src="inst/app/www/logo.png" align="right" height="150" />
@@ -20,28 +21,14 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/brandonerose/RosyFinance/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brandonerose/RosyFinance/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-## Rosyverse
+## RosyFinance
 
-Rosyverse is an evolving pre-CRAN set of packages maintained by Brandon Rose, MD, MPH. It is important to continue to run `Rosyverse::update_all()` while you are using this set of related packages. Please out if there are issues with installation, documentation, or packages.
+RosyFinance is golem shiny app to visualize a budget and networth. It uses an R6 object to manage the dataset. 
 
-``` r
+``` {r}
 # install remotes package if you don't have it
 # install.packages("remotes") 
 # install Rosyverse metapackage which has a function called `update_all()`
-remotes::install_github("brandonerose/Rosyverse")
-Rosyverse::update_all() # run update on all packages
-Rosyverse::load_all() #load all Rosyverse packages!
-```
-
-If you have any issues above download the most recent version of R at RStudio and update all packages in RStudio. See [thecodingdocs.com/r/getting-started](https://www.thecodingdocs.com/r/getting-started "R Getting Started").
-
-## RosyFinance Installation
-
-RosyFinance is designed to...
-
-``` r
-# install remotes package if you don't have it
-# install.packages("remotes") 
 remotes::install_github("brandonerose/RosyFinance")
 ```
 
@@ -49,18 +36,25 @@ remotes::install_github("brandonerose/RosyFinance")
 
 RosyFinance can be use like this...
 
-``` r
+``` {r, echo = TRUE, warning = FALSE}
 library("RosyFinance")
+finances <- load_finances()
+finances$calc_incomes()
+finances$calc_assets()
+finances$calc_debts()
+finances$calc_expenses()
+finances$calc_left_over()
+finances$calc_net_worth()
 
-
+# finances$finances$make_sankey() # can generate outside of shiny app
+# finances$finances$make_treemap() # can generate outside of shiny app
+# launch app!
+run_RosyFinance()
 ```
 
 ## Future plans
 
-* Future versions will demonstrate more advanced features already included!
-* Documentation needs to be updated
-* Need to add vignettes
-* Open to collaboration/feedback
+* Personal development project at the moment. No big plans.
 
 ## Links
 

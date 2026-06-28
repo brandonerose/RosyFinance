@@ -558,91 +558,100 @@ transform_data_incomes <- function(incomes) {
   if(!is_something(incomes)){
     return(incomes)
   }
-  # expenses <- BLANK_EXPENSES # assert
-  incomes$name <- as.character(incomes$name)
-  incomes$gross <- as.integer(incomes$gross)
-  incomes$take_home <- as.integer(incomes$take_home)
-  incomes$monthly_gross <- as.integer(incomes$gross / 12)
-  incomes$monthly_amount <- as.integer(incomes$take_home / 12)
-  incomes
+  suppressWarnings({
+    incomes$name <- as.character(incomes$name)
+    incomes$gross <- as.integer(incomes$gross)
+    incomes$take_home <- as.integer(incomes$take_home)
+    incomes$monthly_gross <- as.integer(incomes$gross / 12)
+    incomes$monthly_amount <- as.integer(incomes$take_home / 12)
+    incomes
+  })
 }
 transform_data_expenses <- function(expenses) {
   if(!is_something(expenses)){
     return(expenses)
   }
-  expenses$name <- as.character(expenses$name)
-  expenses$category <- as.character(expenses$category)
-  expenses$amount <- as.integer(expenses$amount)
-  expenses$type <- as.character(expenses$type)
-  expenses$due_month <- as.integer(expenses$due_month)
-  expenses$due_day <- as.integer(expenses$due_day)
-  # expenses <- BLANK_EXPENSES # assert
-  expenses$yearly_amount <- seq_along(expenses$amount) |>
-    lapply(function(i) {
-      amount <- expenses$amount[i]
-      switch (
-        expenses$type[i],
-        yearly = amount,
-        biannual = amount * 2,
-        monthly = amount * 12
-      )
-    }) |> unlist() |>
-    as.integer()
-  expenses$monthly_amount <- as.integer(expenses$yearly_amount / 12)
-  expenses
+  suppressWarnings({
+    expenses$name <- as.character(expenses$name)
+    expenses$category <- as.character(expenses$category)
+    expenses$amount <- as.integer(expenses$amount)
+    expenses$type <- as.character(expenses$type)
+    expenses$due_month <- as.integer(expenses$due_month)
+    expenses$due_day <- as.integer(expenses$due_day)
+    # expenses <- BLANK_EXPENSES # assert
+    expenses$yearly_amount <- seq_along(expenses$amount) |>
+      lapply(function(i) {
+        amount <- expenses$amount[i]
+        switch (
+          expenses$type[i],
+          yearly = amount,
+          biannual = amount * 2,
+          monthly = amount * 12
+        )
+      }) |> unlist() |>
+      as.integer()
+    expenses$monthly_amount <- as.integer(expenses$yearly_amount / 12)
+    expenses
+  })
 }
 transform_data_assets <- function(assets) {
   if(!is_something(assets)){
     return(assets)
   }
   # expenses <- BLANK_EXPENSES # assert
-  assets$name <- as.character(assets$name)
-  assets$value <- as.integer(assets$value)
-  assets$growth <- as.numeric(assets$growth)
-  assets$contribution <- as.integer(assets$contribution)
-  assets$employer_contribution <- as.integer(assets$employer_contribution)
-  assets$contribution_tax_type <- as.character(assets$contribution_tax_type)
-  assets$income_link <- as.character(assets$income_link)
-  assets$yearly_growth <- as.integer(assets$value * assets$growth)
-  assets
+  suppressWarnings({
+    assets$name <- as.character(assets$name)
+    assets$value <- as.integer(assets$value)
+    assets$growth <- as.numeric(assets$growth)
+    assets$contribution <- as.integer(assets$contribution)
+    assets$employer_contribution <- as.integer(assets$employer_contribution)
+    assets$contribution_tax_type <- as.character(assets$contribution_tax_type)
+    assets$income_link <- as.character(assets$income_link)
+    assets$yearly_growth <- as.integer(assets$value * assets$growth)
+    assets
+  })
 }
 transform_data_debts <- function(debts) {
   if(!is_something(debts)){
     return(debts)
   }
   # debts assert
-  debts$name <- as.character(debts$name)
-  debts$value <- as.integer(debts$value)
-  debts$interest_rate <- as.numeric(debts$interest_rate)
-  debts$payment <- as.integer(debts$payment)
-  debts$yearly_payment <- as.integer(debts$payment * 12)
-  debts$yearly_interest <- as.integer(debts$value * debts$interest_rate)
-  debts$monthly_interest <- debts$yearly_interest/12
-  debts$years_to_payoff <- debts$name |>
-    seq_along() |>
-    lapply(function(i) {
-      years_to_payoff(
-        debt = debts$value[i],
-        rate = debts$interest_rate[i],
-        yearly_payment = debts$yearly_payment[i]
-      )
-    }) |> unlist() |>
-    as.integer()
-  debts
+  suppressWarnings({
+    debts$name <- as.character(debts$name)
+    debts$value <- as.integer(debts$value)
+    debts$interest_rate <- as.numeric(debts$interest_rate)
+    debts$payment <- as.integer(debts$payment)
+    debts$yearly_payment <- as.integer(debts$payment * 12)
+    debts$yearly_interest <- as.integer(debts$value * debts$interest_rate)
+    debts$monthly_interest <- debts$yearly_interest/12
+    debts$years_to_payoff <- debts$name |>
+      seq_along() |>
+      lapply(function(i) {
+        years_to_payoff(
+          debt = debts$value[i],
+          rate = debts$interest_rate[i],
+          yearly_payment = debts$yearly_payment[i]
+        )
+      }) |> unlist() |>
+      as.integer()
+    debts
+  })
 }
 transform_data_years <- function(years) {
   if(!is_something(years)){
     return(years)
   }
   # years assert
-  years$name <- as.character(years$name)
-  years$incomes <- as.integer(years$incomes)
-  years$expenses <- as.integer(years$expenses)
-  years$assets <- as.integer(years$assets)
-  years$debts <- as.integer(years$debts)
-  years$networth <- years$assets - years$debts
-  years$left_over <- years$incomes - years$expenses
-  years
+  suppressWarnings({
+    years$name <- as.character(years$name)
+    years$incomes <- as.integer(years$incomes)
+    years$expenses <- as.integer(years$expenses)
+    years$assets <- as.integer(years$assets)
+    years$debts <- as.integer(years$debts)
+    years$networth <- years$assets - years$debts
+    years$left_over <- years$incomes - years$expenses
+    years
+  })
 }
 transform_data <- function(data_list) {
   data_list$incomes <- transform_data_incomes(data_list$incomes)

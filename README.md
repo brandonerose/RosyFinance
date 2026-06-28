@@ -10,35 +10,19 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![R-CMD-check](https://github.com/brandonerose/RosyFinance/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brandonerose/RosyFinance/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-## Rosyverse
+## RosyFinance
 
-Rosyverse is an evolving pre-CRAN set of packages maintained by Brandon
-Rose, MD, MPH. It is important to continue to run
-`Rosyverse::update_all()` while you are using this set of related
-packages. Please out if there are issues with installation,
-documentation, or packages.
+RosyFinance is golem shiny app to visualize a budget and networth. It
+uses an R6 object to manage the dataset.
 
 ``` r
 # install remotes package if you don't have it
 # install.packages("remotes") 
 # install Rosyverse metapackage which has a function called `update_all()`
-remotes::install_github("brandonerose/Rosyverse")
-Rosyverse::update_all() # run update on all packages
-Rosyverse::load_all() #load all Rosyverse packages!
-```
-
-If you have any issues above download the most recent version of R at
-RStudio and update all packages in RStudio. See
-[thecodingdocs.com/r/getting-started](https://www.thecodingdocs.com/r/getting-started "R Getting Started").
-
-## RosyFinance Installation
-
-RosyFinance is designed to…
-
-``` r
-# install remotes package if you don't have it
-# install.packages("remotes") 
 remotes::install_github("brandonerose/RosyFinance")
+#> Using GitHub PAT from the git credential store.
+#> Skipping install of 'RosyFinance' from a github remote, the SHA1 (32aa34f3) has not changed since last install.
+#>   Use `force = TRUE` to force installation
 ```
 
 ## RosyFinance Example
@@ -47,16 +31,34 @@ RosyFinance can be use like this…
 
 ``` r
 library("RosyFinance")
+finances <- load_finances()
+finances$calc_incomes()
+#> [1] 118000
+finances$calc_assets()
+#> [1] 102000
+finances$calc_debts()
+#> [1] 615000
+finances$calc_expenses()
+#> [1] 63924
+finances$calc_left_over()
+#> [1] 54076
+finances$calc_net_worth()
+#> [1] -513000
 
+# finances$finances$make_sankey() # can generate outside of shiny app
+# finances$finances$make_treemap() # can generate outside of shiny app
+# launch app!
+run_RosyFinance()
+#> Loading required package: shiny
+#> 
+#> Listening on http://127.0.0.1:8189
 ```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" alt="" width="100%" />
 
 ## Future plans
 
-- Future versions will demonstrate more advanced features already
-  included!
-- Documentation needs to be updated
-- Need to add vignettes
-- Open to collaboration/feedback
+- Personal development project at the moment. No big plans.
 
 ## Links
 
