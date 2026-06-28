@@ -20,9 +20,6 @@ uses an R6 object to manage the dataset.
 # install.packages("remotes") 
 # install Rosyverse metapackage which has a function called `update_all()`
 remotes::install_github("brandonerose/RosyFinance")
-#> Using GitHub PAT from the git credential store.
-#> Skipping install of 'RosyFinance' from a github remote, the SHA1 (32aa34f3) has not changed since last install.
-#>   Use `force = TRUE` to force installation
 ```
 
 ## RosyFinance Example
@@ -51,7 +48,7 @@ finances$calc_net_worth()
 run_RosyFinance()
 #> Loading required package: shiny
 #> 
-#> Listening on http://127.0.0.1:8189
+#> Listening on http://127.0.0.1:4266
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" alt="" width="100%" />

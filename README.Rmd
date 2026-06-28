@@ -25,7 +25,7 @@ library("RosyFinance")
 
 RosyFinance is golem shiny app to visualize a budget and networth. It uses an R6 object to manage the dataset. 
 
-``` {r}
+``` {r, eval = FALSE}
 # install remotes package if you don't have it
 # install.packages("remotes") 
 # install Rosyverse metapackage which has a function called `update_all()`
