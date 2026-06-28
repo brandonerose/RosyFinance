@@ -34,13 +34,29 @@ BLANK_YEARS <- data.frame(
   assets = integer(0),
   debts = integer(0)
 )
-BLANK_DATA <- list(
+BLANK_FINANCES <- list(
   incomes = BLANK_INCOMES,
   expenses = BLANK_EXPENSES,
   assets = BLANK_ASSETS,
   debts = BLANK_DEBTS,
   years = BLANK_YEARS
 )
+#' @title load_finances
+#' @param finances named data_list from `finances$save_excel`. If NULL will load
+#'  blank. If missing (default) it will load sample. Otherwise will use provided
+#'  data.
+#' @param file_path Optional. if file_path provided will load from that file. If
+#' provided, will ignore any finances object provided to function
+#' @export
+load_finances <- function(finances, file_path = NULL) {
+  if(missing(finances)){
+    finances <- load_sample_finances()$data
+  }
+  if(is.null(finances)){
+    finances <- BLANK_FINANCES
+  }
+  FinancialData$new(finances = finances, file_path = file_path)
+}
 FinancialData <- R6::R6Class(
   "FinancialData",
   active = list(
@@ -58,8 +74,15 @@ FinancialData <- R6::R6Class(
     }
   ),
   public = list(
-    initialize = function(DATA = BLANK_DATA) {
-      private$project$data <- DATA
+    initialize = function(finances = BLANK_FINANCES, file_path = NULL) {
+      if(!is.null(file_path)){
+        if(file.exists(file_path)){
+          finances <- REDCapSync:::excel_to_list(file_path)
+        }else{
+          message("`file_path` doesn't exist... ", file_path)
+        }
+      }
+      private$project$data <- finances
       private$project$data <- transform_data(private$project$data)
       invisible(self)
     },
@@ -513,6 +536,12 @@ FinancialData <- R6::R6Class(
         # color = ~color
       )
     },
+    save_excel = function(dir, file = "finances"){
+      self$data |>
+        untransform_data() |>
+        process_df_list() |>
+        REDCapSync:::list_to_excel(dir = dir, file = file)
+    },
     print = function(...) {
       str(self$data)
     }
@@ -636,7 +665,7 @@ all_character_cols <- function (DF) {
 all_character_cols_list <- function (list) {
   lapply(list, all_character_cols)
 }
-sample_dataset <- function() {
+load_sample_finances <- function() {
   x <- FinancialData$new()
   # income
   x$add_income("Income 1", 82000, 60000, 5000)

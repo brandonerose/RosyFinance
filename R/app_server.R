@@ -4,9 +4,9 @@
 app_server <- function(input, output, session) {
   values <- reactiveValues()
   if (!exists("finances")) {
-    finances <- sample_dataset()
+    finances <- load_sample_finances()
   }
-  values$finances <- finances # check for missing
+  values$finances <- finances
   # tables -------------
   output$dt_incomes <- DT::renderDT({
     make_DT_table(values$finances$data$incomes)
@@ -35,7 +35,7 @@ app_server <- function(input, output, session) {
       include_debts = input$time_mode_yearly
     )
   })
-  #value boxes --------
+  # value boxes --------
   output$incomes_box <- renderValueBox({
     valueBox(
       value = values$finances$calc_incomes(yearly = input$time_mode_yearly) |>

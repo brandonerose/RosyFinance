@@ -19,6 +19,7 @@ Imports:
     plotly,
     purrr,
     R6,
+    REDCapSync,
     shiny,
     shinydashboard,
     shinydashboardPlus,
