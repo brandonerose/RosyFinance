@@ -45,43 +45,38 @@ app_ui <- function(request) {
         # home--------
         tabItem("home", fluidRow(
           box(
-            title = h1("Home"),
             width = 12L,
-            plotly::plotlyOutput("sankey")
-          )
-        )),
-        # home--------
-        tabItem("incomes", fluidRow(
-          box(
-            title = h1("Incomes"),
-            width = 12L,
-            DT::DTOutput("dt_incomes")
-          )
-        )),
-        # home--------
-        tabItem("debts", fluidRow(
-          box(
-            title = h1("Debts"),
-            width = 12L,
-            DT::DTOutput("dt_debts")
+            plotly::plotlyOutput("sankey", height = "800px")
           ),
-        )),
-        # home--------
-        tabItem("assets", fluidRow(
           box(
-            title = h1("Assets"),
             width = 12L,
-            DT::DTOutput("dt_assets")
+            plotly::plotlyOutput("treemap", height = "600px")
           )
         )),
-        # home--------
-        tabItem("expenses", fluidRow(
-          box(
-            title = h1("Expenses"),
-            width = 12L,
-            DT::DTOutput("dt_expenses")
-          )
-        ))
+        # incomes--------
+        tabItem("incomes", fluidRow(box(
+          title = h1("Incomes"),
+          width = 12L,
+          DT::DTOutput("dt_incomes")
+        ))),
+        # debts--------
+        tabItem("debts", fluidRow(box(
+          title = h1("Debts"),
+          width = 12L,
+          DT::DTOutput("dt_debts")
+        ))),
+        # assets--------
+        tabItem("assets", fluidRow(box(
+          title = h1("Assets"),
+          width = 12L,
+          DT::DTOutput("dt_assets")
+        ))),
+        # expenses--------
+        tabItem("expenses", fluidRow(box(
+          title = h1("Expenses"),
+          width = 12L,
+          DT::DTOutput("dt_expenses")
+        )))
       ),
       controlbar = dbControlbar(
         awesomeCheckbox(

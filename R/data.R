@@ -208,7 +208,9 @@ FinancialData <- R6::R6Class(
       debts <- sum(private$project$data$debts$value, na.rm = T)
       assets - debts
     },
-    make_sankey = function() {
+    make_sankey = function(yearly = TRUE,
+                           include_assets = TRUE,
+                           include_debts = TRUE) {
       incomes <- private$project$data$incomes
       expenses <- private$project$data$expenses
       assets <- private$project$data$assets
@@ -217,8 +219,7 @@ FinancialData <- R6::R6Class(
                             to = character(0),
                             value = integer(0)) |> as_tibble()
       debt_expenses <- debts[which(debts$value > 0), ]
-      debt_expenses <- debt_expenses[which(debt_expenses$yearly_payment >
-                                             0), ]
+      debt_expenses <- debt_expenses[which(debt_expenses$yearly_payment > 0), ]
       if (nrow(debt_expenses) > 0) {
         debt_expenses$category <- "Debt"
         debt_expenses$amount <- debt_expenses$payment
@@ -235,6 +236,13 @@ FinancialData <- R6::R6Class(
         debt_expenses$to <- debt_expenses$name
         flow_df <- flow_df |> bind_rows(debt_expenses[, c("from", "to", "value")])
       }
+      if(!yearly){
+        incomes$take_home <- incomes$take_home/12
+        expenses$yearly_amount <- expenses$yearly_amount/12
+        assets$contribution <- assets$contribution/12
+        debts$yearly_payment <- debts$yearly_payment/12
+        flow_df$value <- flow_df$value/12
+      }
       nodes <- tibble( # need to account for same names accross tables
         name = c(
           incomes$name,
@@ -243,7 +251,6 @@ FinancialData <- R6::R6Class(
           "Total Expenses",
           debts$name,
           assets$name,
-          paste0("Existing ", debts$name),
           "Total Debt",
           "Left Over",
           "Total Assets"
@@ -309,19 +316,28 @@ FinancialData <- R6::R6Class(
           source = get_id(nodes, flow_df$from),
           target = get_id(nodes, flow_df$to),
           value  = flow_df$value
-        ),
-        # Existing balances → Accounts (STOCK)
-        tibble(
-          source = get_id(nodes, debts$name),
-          target = get_id(nodes, "Total Debt"),
-          value  = debts$value
-        ),
-        tibble(
-          source = get_id(nodes, assets$name),
-          target = get_id(nodes, "Total Assets"),
-          value  = assets$value |> as.integer()
         )
       )
+      if(include_assets){
+        links <- links |>
+          bind_rows(
+            tibble(
+              source = get_id(nodes, assets$name),
+              target = get_id(nodes, "Total Assets"),
+              value  = assets$value |> as.integer()
+            )
+          )
+      }
+      if(include_debts){
+        links <- links |>
+          bind_rows(
+            tibble(
+              source = get_id(nodes, debts$name),
+              target = get_id(nodes, "Total Debt"),
+              value  = debts$value
+            )
+          )
+      }
       plotly::plot_ly(
         type = "sankey",
         arrangement = "freeform",
@@ -335,6 +351,143 @@ FinancialData <- R6::R6Class(
           target = links$target,
           value  = links$value
         )
+      )
+    },
+    make_treemap = function(yearly = TRUE,
+                            include_assets = TRUE,
+                            include_debts = TRUE) {
+      incomes <- private$project$data$incomes
+      expenses <- private$project$data$expenses
+      assets <- private$project$data$assets
+      debts <- private$project$data$debts
+      if(!yearly){
+        incomes$take_home <- incomes$take_home/12
+        expenses$yearly_amount <- expenses$yearly_amount/12
+        assets$contribution <- assets$contribution/12
+        debts$yearly_payment <- debts$yearly_payment/12
+        debts$yearly_interest <- debts$yearly_interest/12
+      }
+      pre_tax_assets <- assets[which(assets$contribution_tax_type == "Pre"), ]
+      post_tax_assets <- assets[which(assets$contribution_tax_type == "Post"), ]
+      assets$parent <- "Assests"
+      assets$annual_contribution <- assets$contribution
+      assets$label <- assets$name
+      assets$color <- "#15BF34"
+      debts$parent <- "Debt"
+      debts <- debts[which(debts$value > 0),]
+      debts$label <- paste0(debts$name, " - ", round(debts$interest *100,1), " %")
+      debts$color <- "#EB7E00"
+      expenses$parent <- "Expenses"
+      expenses$value <- expenses$yearly_amount
+      expenses$label <- expenses$name
+      expenses$color <- "#DBAA76"
+      add_on <- debts[which(debts$yearly_payment > 0),]
+      if(nrow(add_on)>0){
+        add_on <- data.frame(
+          parent = "Expenses",
+          value = add_on$yearly_payment,
+          label = paste0("Payments for ", add_on$name),
+          color = add_on$color
+        )
+        expenses <- expenses |> bind_rows(add_on)
+      }
+      add_on <- assets[which(assets$contribution > 0 & assets$contribution_tax_type == "Post"),]
+      if(nrow(add_on)>0){
+        add_on <- data.frame(
+          parent = "Expenses",
+          value = add_on$contribution,
+          label = paste0("Payments for ", add_on$name),
+          color = add_on$color
+        )
+        expenses <- expenses |> bind_rows(add_on)
+      }
+      expenses_order <- expenses$value |> order(decreasing = T)
+      expenses <- expenses[expenses_order, ]
+      incomes$parent <- "Income"
+      incomes$value <- incomes$take_home
+      incomes$label <- incomes$name
+      incomes$color <- "#00E808"
+      assest_sum <- sum(assets$value)
+      debt_sum <- sum(debts$value)
+      expenses_sum <- sum(expenses$value)
+      income_sum <-sum(incomes$value)
+      pre_tax <- sum(pre_tax_assets$contribution)
+      post_tax <- sum(post_tax_assets$contribution)
+      left_over <-  income_sum - expenses_sum
+      annual_interest <-sum(debts$yearly_interest)
+      annual_payments <-sum(debts$yearly_payment)
+      #current payment
+      (debt_sum/(annual_payments - annual_interest))
+      # max repayment
+      (debt_sum/(annual_payments - annual_interest + left_over))
+      total_scale <-  income_sum
+      final_df <- bind_rows(
+        tibble(
+          label = "Expenses",
+          parent = "Income",
+          value = expenses_sum
+        ),
+        tibble(
+          label = "Left Over",
+          parent = "Income",
+          value = left_over
+        ),
+        tibble(
+          label = "Income",
+          parent = "Total",
+          value = income_sum
+        ),
+        expenses %>% transmute(
+          label = label,
+          parent = parent,
+          value = value
+        )
+      )
+      if(include_assets){
+        total_scale <- total_scale + assest_sum
+        final_df <- final_df |>
+          bind_rows(
+            tibble(
+              label = "Assests",
+              parent = "Total",
+              value = assest_sum
+            ),
+            assets %>% transmute(
+              label = label,
+              parent = parent,
+              value = value)
+          )
+      }
+      if(include_debts){
+        total_scale <- total_scale + debt_sum
+        final_df <- final_df |>
+          bind_rows(
+            tibble(
+              label = "Debt",
+              parent = "Total",
+              value = debt_sum
+            ),
+            debts %>% transmute(
+              label = label,
+              parent = parent,
+              value = value
+            )
+          )
+      }
+      final_df <- tibble(
+        label = "Total",
+        parent = "",
+        value = total_scale
+      ) |>  bind_rows(final_df)
+      plotly::plot_ly(
+        final_df,
+        type = "treemap",
+        labels = ~label,
+        parents = ~parent,
+        values = ~value,
+        branchvalues = "total",
+        textinfo = "label+value+percent parent"
+        # color = ~color
       )
     },
     print = function(...) {

@@ -2,7 +2,6 @@
 #'     DO NOT REMOVE.
 #' @noRd
 app_server <- function(input, output, session) {
-  # values ------------
   values <- reactiveValues()
   if (!exists("finances")) {
     finances <- sample_dataset()
@@ -21,6 +20,17 @@ app_server <- function(input, output, session) {
     make_DT_table(values$finances$data$debts)
   })
   output$sankey <- plotly::renderPlotly({
-    values$finances$make_sankey()
+    values$finances$make_sankey(
+      yearly = input$time_mode_yearly,
+      include_assets = input$time_mode_yearly,
+      include_debts = input$time_mode_yearly
+    )
+  })
+  output$treemap <- plotly::renderPlotly({
+    values$finances$make_treemap(
+      yearly = input$time_mode_yearly,
+      include_assets = input$time_mode_yearly,
+      include_debts = input$time_mode_yearly
+    )
   })
 }
