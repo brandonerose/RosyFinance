@@ -304,14 +304,14 @@ FinancialData <- R6::R6Class(
       )  |>
         distinct() |>
         mutate(id = row_number() - 1)
-      assest_sum <- sum(assets$value)
-      debt_sum <- sum(debts$value)
-      expenses_sum <- sum(expenses$yearly_amount)
-      income_sum <- sum(incomes$take_home)
+      assest_sum <- sum(assets$value, na.rm = TRUE)
+      debt_sum <- sum(debts$value, na.rm = TRUE)
+      expenses_sum <- sum(expenses$yearly_amount, na.rm = TRUE)
+      income_sum <- sum(incomes$take_home, na.rm = TRUE)
       pre_tax_assets <- assets[which(assets$contribution_tax_type == "Pre"), ]
       post_tax_assets <- assets[which(assets$contribution_tax_type == "Post"), ]
-      pre_tax <- sum(pre_tax_assets$contribution)
-      post_tax <- sum(post_tax_assets$contribution)
+      pre_tax <- sum(pre_tax_assets$contribution, na.rm = TRUE)
+      post_tax <- sum(post_tax_assets$contribution, na.rm = TRUE)
       left_over <-  income_sum - expenses_sum - post_tax
       links <- bind_rows(
         # Income → Combined
@@ -453,15 +453,15 @@ FinancialData <- R6::R6Class(
       incomes$value <- incomes$take_home
       incomes$label <- incomes$name
       incomes$color <- "#00E808"
-      assest_sum <- sum(assets$value)
-      debt_sum <- sum(debts$value)
-      expenses_sum <- sum(expenses$value)
-      income_sum <-sum(incomes$value)
-      pre_tax <- sum(pre_tax_assets$contribution)
-      post_tax <- sum(post_tax_assets$contribution)
+      assest_sum <- sum(assets$value, na.rm = TRUE)
+      debt_sum <- sum(debts$value, na.rm = TRUE)
+      expenses_sum <- sum(expenses$value, na.rm = TRUE)
+      income_sum <-sum(incomes$value, na.rm = TRUE)
+      pre_tax <- sum(pre_tax_assets$contribution, na.rm = TRUE)
+      post_tax <- sum(post_tax_assets$contribution, na.rm = TRUE)
       left_over <-  income_sum - expenses_sum
-      annual_interest <-sum(debts$yearly_interest)
-      annual_payments <-sum(debts$yearly_payment)
+      annual_interest <-sum(debts$yearly_interest, na.rm = TRUE)
+      annual_payments <-sum(debts$yearly_payment, na.rm = TRUE)
       #current payment
       (debt_sum/(annual_payments - annual_interest))
       # max repayment
