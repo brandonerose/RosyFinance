@@ -623,7 +623,9 @@ transform_data_debts <- function(debts) {
     debts$payment <- as.integer(debts$payment)
     debts$yearly_payment <- as.integer(debts$payment * 12)
     debts$yearly_interest <- as.integer(debts$value * debts$interest_rate)
-    debts$monthly_interest <- debts$yearly_interest/12
+    debts$yearly_principal <- debts$yearly_payment - debts$yearly_interest
+    debts$yearly_change <- (debts$value - debts$yearly_principal) * debts$interest_rate
+    debts$monthly_interest <- debts$yearly_interest / 12
     debts$years_to_payoff <- debts$name |>
       seq_along() |>
       lapply(function(i) {
