@@ -536,11 +536,12 @@ FinancialData <- R6::R6Class(
         # color = ~color
       )
     },
-    save_excel = function(dir, file = "finances"){
-      self$data |>
-        untransform_data() |>
-        process_df_list() |>
-        REDCapSync:::list_to_excel(dir = dir, file = file)
+    save_excel = function(dir, file = "finances", transform = TRUE){
+      save_this <- process_df_list(self$data)
+      if (!transform) {
+        save_this <- untransform_data(save_this)
+      }
+      REDCapSync:::list_to_excel(input = save_this, dir = dir, file = file)
     },
     print = function(...) {
       str(self$data)
@@ -564,6 +565,7 @@ transform_data_incomes <- function(incomes) {
     incomes$take_home <- as.integer(incomes$take_home)
     incomes$monthly_gross <- as.integer(incomes$gross / 12)
     incomes$monthly_amount <- as.integer(incomes$take_home / 12)
+    incomes <- incomes[order(incomes$gross, decreasing = TRUE), ]
     incomes
   })
 }
@@ -591,6 +593,7 @@ transform_data_expenses <- function(expenses) {
       }) |> unlist() |>
       as.integer()
     expenses$monthly_amount <- as.integer(expenses$yearly_amount / 12)
+    expenses <- expenses[order(expenses$yearly_amount, decreasing = TRUE), ]
     expenses
   })
 }
@@ -608,6 +611,7 @@ transform_data_assets <- function(assets) {
     assets$contribution_tax_type <- as.character(assets$contribution_tax_type)
     assets$income_link <- as.character(assets$income_link)
     assets$yearly_growth <- as.integer(assets$value * assets$growth)
+    assets <- assets[order(assets$value, decreasing = TRUE), ]
     assets
   })
 }
@@ -636,6 +640,7 @@ transform_data_debts <- function(debts) {
         )
       }) |> unlist() |>
       as.integer()
+    debts <- debts[order(debts$value, decreasing = TRUE), ]
     debts
   })
 }
