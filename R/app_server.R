@@ -9,16 +9,16 @@ app_server <- function(input, output, session) {
   values$finances <- finances
   # tables -------------
   output$dt_incomes <- DT::renderDT({
-    make_DT_table(values$finances$data$incomes)
+    make_DT_table(values$finances$data$incomes, paging = FALSE)
   })
   output$dt_expenses <- DT::renderDT({
-    make_DT_table(values$finances$data$expenses)
+    make_DT_table(values$finances$data$expenses, paging = FALSE)
   })
   output$dt_assets <- DT::renderDT({
-    make_DT_table(values$finances$data$assets)
+    make_DT_table(values$finances$data$assets, paging = FALSE)
   })
   output$dt_debts <- DT::renderDT({
-    make_DT_table(values$finances$data$debts)
+    make_DT_table(values$finances$data$debts, paging = FALSE)
   })
   # plots -------------
   output$sankey <- plotly::renderPlotly({
@@ -89,5 +89,22 @@ app_server <- function(input, output, session) {
       icon = icon("dollar-sign"),
       color = "green"
     )
+  })
+  output$expense_boxes <- renderUI({
+    x <- make_expense_summary(values$finances$data)
+    fluidRow(
+      lapply(seq_len(nrow(x)), function(i) {
+        column(
+          width = 3,
+          valueBox(
+            value = scales::dollar(x$yearly_amount[i]),
+            subtitle = x$category[i],
+            icon = icon("wallet"),
+            width = 12
+          )
+        )
+      })
+    )
+
   })
 }

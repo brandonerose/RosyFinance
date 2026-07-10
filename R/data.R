@@ -264,30 +264,20 @@ FinancialData <- R6::R6Class(
       flow_df <- data.frame(from = character(0),
                             to = character(0),
                             value = integer(0)) |> as_tibble()
-      debt_expenses <- debts[which(debts$value > 0), ]
-      debt_expenses <- debt_expenses[which(debt_expenses$yearly_payment > 0), ]
+      debt_expenses <- get_debt_expenses(private$project$data)
       if (nrow(debt_expenses) > 0) {
-        debt_expenses$category <- "Debt"
-        debt_expenses$amount <- debt_expenses$payment
-        debt_expenses$monthly_amount <- debt_expenses$payment
-        debt_expenses$yearly_amount <- debt_expenses$payment * 12
-        debt_expenses <- debt_expenses[, c("name",
-                                           "category",
-                                           "amount",
-                                           "yearly_amount",
-                                           "monthly_amount")]
         expenses <- expenses |> bind_rows(debt_expenses)
         debt_expenses$value <- debt_expenses$yearly_amount |> as.integer()
         debt_expenses$from <- debt_expenses$category
         debt_expenses$to <- debt_expenses$name
         flow_df <- flow_df |> bind_rows(debt_expenses[, c("from", "to", "value")])
       }
-      if(!yearly){
-        incomes$take_home <- incomes$take_home/12
-        expenses$yearly_amount <- expenses$yearly_amount/12
-        assets$contribution <- assets$contribution/12
-        debts$yearly_payment <- debts$yearly_payment/12
-        flow_df$value <- flow_df$value/12
+      if (!yearly) {
+        incomes$take_home <- incomes$take_home / 12
+        expenses$yearly_amount <- expenses$yearly_amount / 12
+        assets$contribution <- assets$contribution / 12
+        debts$yearly_payment <- debts$yearly_payment / 12
+        flow_df$value <- flow_df$value / 12
       }
       nodes <- tibble( # need to account for same names accross tables
         name = c(
@@ -406,12 +396,12 @@ FinancialData <- R6::R6Class(
       expenses <- private$project$data$expenses
       assets <- private$project$data$assets
       debts <- private$project$data$debts
-      if(!yearly){
-        incomes$take_home <- incomes$take_home/12
-        expenses$yearly_amount <- expenses$yearly_amount/12
-        assets$contribution <- assets$contribution/12
-        debts$yearly_payment <- debts$yearly_payment/12
-        debts$yearly_interest <- debts$yearly_interest/12
+      if (!yearly) {
+        incomes$take_home <- incomes$take_home / 12
+        expenses$yearly_amount <- expenses$yearly_amount / 12
+        assets$contribution <- assets$contribution / 12
+        debts$yearly_payment <- debts$yearly_payment / 12
+        debts$yearly_interest <- debts$yearly_interest / 12
       }
       pre_tax_assets <- assets[which(assets$contribution_tax_type == "Pre"), ]
       post_tax_assets <- assets[which(assets$contribution_tax_type == "Post"), ]
@@ -420,15 +410,16 @@ FinancialData <- R6::R6Class(
       assets$label <- assets$name
       assets$color <- "#15BF34"
       debts$parent <- "Debt"
-      debts <- debts[which(debts$value > 0),]
-      debts$label <- paste0(debts$name, " - ", round(debts$interest_rate *100,1), " %")
+      debts <- debts[which(debts$value > 0), ]
+      debts$label <- paste0(debts$name, " - ", round(debts$interest_rate *
+                                                       100, 1), " %")
       debts$color <- "#EB7E00"
       expenses$parent <- "Expenses"
       expenses$value <- expenses$yearly_amount
       expenses$label <- expenses$name
       expenses$color <- "#DBAA76"
-      add_on <- debts[which(debts$yearly_payment > 0),]
-      if(nrow(add_on)>0){
+      add_on <- debts[which(debts$yearly_payment > 0), ]
+      if (nrow(add_on) > 0) {
         add_on <- data.frame(
           parent = "Expenses",
           value = add_on$yearly_payment,
@@ -437,8 +428,9 @@ FinancialData <- R6::R6Class(
         )
         expenses <- expenses |> bind_rows(add_on)
       }
-      add_on <- assets[which(assets$contribution > 0 & assets$contribution_tax_type == "Post"),]
-      if(nrow(add_on)>0){
+      add_on <- assets[which(assets$contribution > 0 &
+                               assets$contribution_tax_type == "Post"), ]
+      if (nrow(add_on) > 0) {
         add_on <- data.frame(
           parent = "Expenses",
           value = add_on$contribution,
@@ -456,16 +448,16 @@ FinancialData <- R6::R6Class(
       assest_sum <- sum(assets$value, na.rm = TRUE)
       debt_sum <- sum(debts$value, na.rm = TRUE)
       expenses_sum <- sum(expenses$value, na.rm = TRUE)
-      income_sum <-sum(incomes$value, na.rm = TRUE)
+      income_sum <- sum(incomes$value, na.rm = TRUE)
       pre_tax <- sum(pre_tax_assets$contribution, na.rm = TRUE)
       post_tax <- sum(post_tax_assets$contribution, na.rm = TRUE)
       left_over <-  income_sum - expenses_sum
-      annual_interest <-sum(debts$yearly_interest, na.rm = TRUE)
-      annual_payments <-sum(debts$yearly_payment, na.rm = TRUE)
+      annual_interest <- sum(debts$yearly_interest, na.rm = TRUE)
+      annual_payments <- sum(debts$yearly_payment, na.rm = TRUE)
       #current payment
-      (debt_sum/(annual_payments - annual_interest))
+      (debt_sum / (annual_payments - annual_interest))
       # max repayment
-      (debt_sum/(annual_payments - annual_interest + left_over))
+      (debt_sum / (annual_payments - annual_interest + left_over))
       total_scale <-  income_sum
       final_df <- bind_rows(
         tibble(
@@ -489,7 +481,7 @@ FinancialData <- R6::R6Class(
           value = value
         )
       )
-      if(include_assets){
+      if (include_assets) {
         total_scale <- total_scale + assest_sum
         final_df <- final_df |>
           bind_rows(
@@ -501,10 +493,11 @@ FinancialData <- R6::R6Class(
             assets %>% transmute(
               label = label,
               parent = parent,
-              value = value)
+              value = value
+            )
           )
       }
-      if(include_debts){
+      if (include_debts) {
         total_scale <- total_scale + debt_sum
         final_df <- final_df |>
           bind_rows(
@@ -520,28 +513,30 @@ FinancialData <- R6::R6Class(
             )
           )
       }
-      final_df <- tibble(
-        label = "Total",
-        parent = "",
-        value = total_scale
-      ) |>  bind_rows(final_df)
+      final_df <- tibble(label = "Total",
+                         parent = "",
+                         value = total_scale) |>  bind_rows(final_df)
       plotly::plot_ly(
         final_df,
         type = "treemap",
-        labels = ~label,
-        parents = ~parent,
-        values = ~value,
+        labels = ~ label,
+        parents = ~ parent,
+        values = ~ value,
         branchvalues = "total",
         textinfo = "label+value+percent parent"
         # color = ~color
       )
     },
-    save_excel = function(dir, file = "finances", transform = TRUE){
+    save_excel = function(dir,
+                          file = "finances",
+                          transform = TRUE) {
       save_this <- process_df_list(self$data)
       if (!transform) {
         save_this <- untransform_data(save_this)
       }
-      REDCapSync:::list_to_excel(input = save_this, dir = dir, file = file)
+      REDCapSync:::list_to_excel(input = save_this,
+                                 dir = dir,
+                                 file = file)
     },
     print = function(...) {
       str(self$data)
@@ -549,6 +544,36 @@ FinancialData <- R6::R6Class(
   ),
   private = list(project = list(data = NULL))
 )
+get_debt_expenses <- function(data_list) {
+  debts <- data_list$debts
+  expenses <- data_list$expenses
+  debt_expenses <- debts[which(debts$value > 0), ]
+  debt_expenses <- debt_expenses[which(debt_expenses$yearly_payment > 0), ]
+  if (nrow(debt_expenses) > 0) {
+    debt_expenses$category <- "Debt"
+    debt_expenses$amount <- debt_expenses$payment
+    debt_expenses$monthly_amount <- debt_expenses$payment
+    debt_expenses$yearly_amount <- debt_expenses$payment * 12
+    debt_expenses <- debt_expenses[, c("name",
+                                       "category",
+                                       "amount",
+                                       "yearly_amount",
+                                       "monthly_amount")]
+  }
+  debt_expenses
+}
+make_expense_summary <- function(data_list) {
+  debt_expenses <- get_debt_expenses(data_list)
+  expenses <- data_list$expenses
+  if (nrow(debt_expenses) > 0) {
+    expenses <- expenses |> bind_rows(debt_expenses)
+  }
+  expenses  |>
+    group_by(category) |>
+    summarise(yearly_amount = sum(yearly_amount, na.rm = TRUE),
+              .groups = "drop") |>
+    arrange(-yearly_amount)
+}
 update_entry <- function(data_list, table_name, entry_name, entry) {
   old <- data_list[[table_name]]
   new <- old[which(old$name != entry_name), ] |> bind_rows(entry)
@@ -570,7 +595,7 @@ transform_data_incomes <- function(incomes) {
   })
 }
 transform_data_expenses <- function(expenses) {
-  if(!is_something(expenses)){
+  if (!is_something(expenses)) {
     return(expenses)
   }
   suppressWarnings({
@@ -598,7 +623,7 @@ transform_data_expenses <- function(expenses) {
   })
 }
 transform_data_assets <- function(assets) {
-  if(!is_something(assets)){
+  if (!is_something(assets)) {
     return(assets)
   }
   # expenses <- BLANK_EXPENSES # assert
@@ -616,7 +641,7 @@ transform_data_assets <- function(assets) {
   })
 }
 transform_data_debts <- function(debts) {
-  if(!is_something(debts)){
+  if (!is_something(debts)) {
     return(debts)
   }
   # debts assert
@@ -645,7 +670,7 @@ transform_data_debts <- function(debts) {
   })
 }
 transform_data_years <- function(years) {
-  if(!is_something(years)){
+  if (!is_something(years)) {
     return(years)
   }
   # years assert
@@ -669,10 +694,10 @@ transform_data <- function(data_list) {
   data_list
 }
 untransform_data <- function(data_list) {
-  data_list$incomes <- data_list$incomes[,names(BLANK_INCOMES)]
-  data_list$expenses <- data_list$expenses[,names(BLANK_EXPENSES)]
-  data_list$assets <- data_list$assets[,names(BLANK_ASSETS)]
-  data_list$debts <- data_list$debts[,names(BLANK_DEBTS)]
+  data_list$incomes <- data_list$incomes[, names(BLANK_INCOMES)]
+  data_list$expenses <- data_list$expenses[, names(BLANK_EXPENSES)]
+  data_list$assets <- data_list$assets[, names(BLANK_ASSETS)]
+  data_list$debts <- data_list$debts[, names(BLANK_DEBTS)]
   all_character_cols_list(data_list)
 }
 all_character_cols <- function (DF) {

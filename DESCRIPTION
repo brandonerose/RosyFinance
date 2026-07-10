@@ -20,6 +20,7 @@ Imports:
     purrr,
     R6,
     REDCapSync,
+    scales,
     shiny,
     shinydashboard,
     shinydashboardPlus,

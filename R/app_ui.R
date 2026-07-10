@@ -89,7 +89,8 @@ app_ui <- function(request) {
           title = h1("Expenses"),
           width = 12L,
           DT::DTOutput("dt_expenses")
-        )))
+        )),
+        uiOutput("expense_boxes"))
       ),
       controlbar = dbControlbar(
         awesomeCheckbox(
