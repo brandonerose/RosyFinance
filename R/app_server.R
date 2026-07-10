@@ -92,6 +92,9 @@ app_server <- function(input, output, session) {
   })
   output$expense_boxes <- renderUI({
     x <- make_expense_summary(values$finances$data)
+    if (!input$time_mode_yearly) {
+      x$yearly_amount <- x$yearly_amount / 12
+    }
     fluidRow(
       lapply(seq_len(nrow(x)), function(i) {
         column(
@@ -105,6 +108,5 @@ app_server <- function(input, output, session) {
         )
       })
     )
-
   })
 }
