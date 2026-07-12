@@ -274,7 +274,12 @@ FinancialData <- R6::R6Class(
       }
       if (!yearly) {
         incomes$take_home <- incomes$take_home / 12
+        incomes$estimated_tax <- incomes$estimated_tax / 12
+        incomes$pre_tax_deductions <- incomes$pre_tax_deductions / 12
+        incomes$pre_tax_contributions <- incomes$pre_tax_contributions / 12
+        incomes$pre_tax_employer_contributions <- incomes$pre_tax_employer_contributions / 12
         expenses$yearly_amount <- expenses$yearly_amount / 12
+        assets$employer_contribution <- assets$employer_contribution / 12
         assets$contribution <- assets$contribution / 12
         debts$yearly_payment <- debts$yearly_payment / 12
         flow_df$value <- flow_df$value / 12
@@ -282,6 +287,9 @@ FinancialData <- R6::R6Class(
       nodes <- tibble( # need to account for same names accross tables
         name = c(
           incomes$name,
+          paste0(incomes$name, " Employer"),
+          "Taxes",
+          "Pre-Tax Deductions",
           "Combined Income",
           expenses$category,
           "Total Expenses",
@@ -302,7 +310,10 @@ FinancialData <- R6::R6Class(
       post_tax_assets <- assets[which(assets$contribution_tax_type == "Post"), ]
       pre_tax <- sum(pre_tax_assets$contribution, na.rm = TRUE)
       post_tax <- sum(post_tax_assets$contribution, na.rm = TRUE)
+      estimated_tax <- sum(incomes$estimated_tax, na.rm = TRUE)
+      # effective_tax_rate <- sum(incomes$estimated_tax, na.rm = TRUE)
       left_over <-  income_sum - expenses_sum - post_tax
+      employer_contributions <- sum(incomes$pre_tax_employer_contributions, na.rm = T)
       links <- bind_rows(
         # Income → Combined
         tibble(
@@ -310,11 +321,29 @@ FinancialData <- R6::R6Class(
           target = get_id(nodes, "Combined Income"),
           value  = incomes$take_home
         ),
+        # Income → Taxes
+        tibble(
+          source = get_id(nodes, incomes$name),
+          target = get_id(nodes, "Taxes"),
+          value  = incomes$estimated_tax
+        ),
+        # Income → Pre-Tax Deductions
+        tibble(
+          source = get_id(nodes, incomes$name),
+          target = get_id(nodes, "Pre-Tax Deductions"),
+          value  = incomes$pre_tax_deductions
+        ),
         # Income → Asset Pre tax
         tibble(
           source = get_id(nodes, pre_tax_assets$income_link),
           target = get_id(nodes, pre_tax_assets$name),
           value  = pre_tax_assets$contribution
+        ),
+        # Employer → Asset Pre tax
+        tibble(
+          source = get_id(nodes, paste0(pre_tax_assets$income_link, " Employer")),
+          target = get_id(nodes, pre_tax_assets$name),
+          value  = pre_tax_assets$employer_contribution
         ),
         # Combined → Total Expenses
         tibble(
@@ -374,6 +403,7 @@ FinancialData <- R6::R6Class(
             )
           )
       }
+      links <- links[which(links$value > 0), ]
       plotly::plot_ly(
         type = "sankey",
         arrangement = "freeform",
@@ -587,6 +617,7 @@ transform_data_incomes <- function(incomes) {
   suppressWarnings({
     incomes$name <- as.character(incomes$name)
     incomes$gross <- as.integer(incomes$gross)
+    incomes$pre_tax_deductions <- as.integer(incomes$pre_tax_deductions)
     incomes$take_home <- as.integer(incomes$take_home)
     incomes$monthly_gross <- as.integer(incomes$gross / 12)
     incomes$monthly_amount <- as.integer(incomes$take_home / 12)
@@ -690,6 +721,27 @@ transform_data <- function(data_list) {
   data_list$expenses <- transform_data_expenses(data_list$expenses)
   data_list$assets <- transform_data_assets(data_list$assets)
   data_list$debts <- transform_data_debts(data_list$debts)
+  data_list$incomes$pre_tax_contributions <- data_list$incomes$name |>
+    lapply(function(income_name) {
+      the_row <- which(data_list$assets$income_link == income_name)
+      if (length(the_row) == 0) {
+        return(0)
+      }
+      data_list$assets$contribution[the_row]
+    }) |> unlist() |> as.integer()
+  data_list$incomes$pre_tax_employer_contributions <- data_list$incomes$name |>
+    lapply(function(income_name) {
+      the_row <- which(data_list$assets$income_link == income_name)
+      if (length(the_row) == 0) {
+        return(0)
+      }
+      data_list$assets$employer_contribution[the_row]
+    }) |> unlist() |> as.integer()
+  data_list$incomes$taxable_income <- data_list$incomes$gross -
+    data_list$incomes$pre_tax_deductions -
+    data_list$incomes$pre_tax_contributions
+  data_list$incomes$estimated_tax <- data_list$incomes$taxable_income -
+    data_list$incomes$take_home
   data_list$years <- transform_data_debts(data_list$years)
   data_list
 }
