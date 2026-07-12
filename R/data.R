@@ -291,7 +291,7 @@ FinancialData <- R6::R6Class(
           "Left Over",
           "Total Assets"
         )
-      )  |>
+      ) |>
         distinct() |>
         mutate(id = row_number() - 1)
       assest_sum <- sum(assets$value, na.rm = TRUE)
@@ -312,7 +312,7 @@ FinancialData <- R6::R6Class(
         ),
         # Income → Asset Pre tax
         tibble(
-          source = get_id(nodes, incomes$name),
+          source = get_id(nodes, pre_tax_assets$income_link),
           target = get_id(nodes, pre_tax_assets$name),
           value  = pre_tax_assets$contribution
         ),
