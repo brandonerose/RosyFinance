@@ -255,6 +255,7 @@ FinancialData <- R6::R6Class(
       self$calc_assets() - self$calc_debts()
     },
     make_sankey = function(yearly = TRUE,
+                           include_interest = FALSE,
                            include_assets = TRUE,
                            include_debts = TRUE) {
       incomes <- private$project$data$incomes
@@ -281,7 +282,9 @@ FinancialData <- R6::R6Class(
         expenses$yearly_amount <- expenses$yearly_amount / 12
         assets$employer_contribution <- assets$employer_contribution / 12
         assets$contribution <- assets$contribution / 12
+        assets$yearly_growth <- assets$yearly_growth / 12
         debts$yearly_payment <- debts$yearly_payment / 12
+        debts$yearly_interest <- debts$yearly_interest / 12
         flow_df$value <- flow_df$value / 12
       }
       nodes <- tibble( # need to account for same names accross tables
@@ -392,6 +395,16 @@ FinancialData <- R6::R6Class(
               value  = assets$value |> as.integer()
             )
           )
+        if(include_interest) {
+          links <- links |>
+            bind_rows(
+              tibble(
+                source = get_id(nodes, assets$name),
+                target = get_id(nodes, assets$name),
+                value  = assets$yearly_growth
+              )
+            )
+        }
       }
       if(include_debts){
         links <- links |>
@@ -402,6 +415,16 @@ FinancialData <- R6::R6Class(
               value  = debts$value
             )
           )
+        if(include_interest) {
+          links <- links |>
+            bind_rows(
+              tibble(
+                source = get_id(nodes, debts$name),
+                target = get_id(nodes, debts$name),
+                value  = debts$yearly_interest
+              )
+            )
+        }
       }
       links <- links[which(links$value > 0), ]
       plotly::plot_ly(
