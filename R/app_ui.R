@@ -53,6 +53,12 @@ app_ui <- function(request) {
               valueBoxOutput("debts_box", width = 3)
             ),
             fluidRow(
+              valueBoxOutput("taxes_box", width = 3),
+              valueBoxOutput("essentials_box", width = 3),
+              valueBoxOutput("growth_box", width = 3),
+              valueBoxOutput("interest_box", width = 3)
+            ),
+            fluidRow(
               valueBoxOutput("left_over_box", width = 6),
               valueBoxOutput("net_worth_box", width = 6)
             )

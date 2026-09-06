@@ -242,6 +242,56 @@ FinancialData <- R6::R6Class(
     calc_debts= function() {
       sum(private$project$data$debts$value, na.rm = TRUE)
     },
+    calc_taxes = function(yearly = TRUE) {
+      gross <- private$project$data$incomes$gross
+      pre_tax_deductions <- private$project$data$incomes$pre_tax_deductions
+      take_home <- private$project$data$incomes$take_home
+      gross[which(is.na(gross))] <- 0
+      pre_tax_deductions[which(is.na(pre_tax_deductions))] <- 0
+      take_home[which(is.na(take_home))] <- 0
+      taxes <- sum(gross - pre_tax_deductions - take_home)
+      pre_tax_deductions2 <- 0
+      assets <- private$project$data$assets
+      if(nrow(assets)>0){
+        pre_tax_deductions2 <- assets$contribution[which(assets$contribution_tax_type == "Pre")] |>
+          sum(na.rm = TRUE)
+      }
+      taxes <- taxes - pre_tax_deductions2
+      if(!yearly){
+        taxes <- taxes / 12
+      }
+      taxes
+    },
+    calc_essentials = function(yearly = TRUE,
+                               categories = c("Housing",
+                                              "Food",
+                                              "Cars",
+                                              "Insurance",
+                                              "Phones")) {
+      expenses <- private$project$data$expenses
+      expenses <- expenses$yearly_amount[which(expenses$category %in% categories)]
+      expenses <- sum(expenses, na.rm = TRUE)
+      if(!yearly){
+        expenses <- expenses / 12
+      }
+      expenses
+    },
+    calc_growth = function(yearly = TRUE) {
+      yearly_growth <- private$project$data$assets$yearly_growth
+      growth <- sum(yearly_growth, na.rm = TRUE)
+      if(!yearly){
+        growth <- growth / 12
+      }
+      growth
+    },
+    calc_interest = function(yearly = TRUE) {
+      yearly_interest <- private$project$data$debts$yearly_interest
+      interest <- sum(yearly_interest, na.rm = TRUE)
+      if(!yearly){
+        interest <- interest / 12
+      }
+      interest
+    },
     calc_left_over = function(yearly = TRUE,
                               include_debts = TRUE,
                               include_assets = TRUE) {
