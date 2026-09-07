@@ -164,4 +164,295 @@ app_server <- function(input, output, session) {
       color = "red"
     )
   })
+  # observe tables --------------
+  # dt_incomes_rows_selected
+  observe({
+    entry <- NULL
+    entry$name <- ""
+    entry$gross <- 86000
+    entry$take_home <- 55000
+    entry$pre_tax_deductions <- 0
+    if(is_something(input$dt_incomes_rows_selected)){
+      entry <- values$finances$data$incomes[input$dt_incomes_rows_selected, ]
+    }
+    updateTextInput(
+      session = session,
+      inputId = "income_name",
+      value = entry$name
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "income_gross",
+      value = entry$gross
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "income_take_home",
+      value = entry$take_home
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "pre_tax_deductions",
+      value = entry$pre_tax_deductions
+    )
+  })
+  # dt_expenses_rows_selected
+  observe({
+    entry <- NULL
+    entry$name <- ""
+    entry$category <- "Phone"
+    entry$amount <- 150
+    entry$type <- "monthly"
+    if(is_something(input$dt_expenses_rows_selected)){
+      entry <- values$finances$data$expenses[input$dt_expenses_rows_selected, ]
+    }
+    updateTextInput(
+      session = session,
+      inputId = "expense_name",
+      value = entry$name
+    )
+    updateTextInput(
+      session = session,
+      inputId = "expense_category",
+      value = entry$category
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "expense_amount",
+      value = entry$amount
+    )
+    updateSelectizeInput(
+      session = session,
+      inputId = "expense_type",
+      selected = entry$type
+    )
+  })
+  # dt_assets_rows_selected
+  observe({
+    entry <- NULL
+    entry$name <- ""
+    entry$value <- 1000
+    entry$growth <- 0.1
+    entry$contribution <- 0
+    entry$employer_contribution <- 0
+    entry$contribution_tax_type <- "Post"
+    entry$income_link <- ""
+    if(is_something(input$dt_assets_rows_selected)){
+      entry <- values$finances$data$assets[input$dt_assets_rows_selected, ]
+    }
+    updateTextInput(
+      session = session,
+      inputId = "asset_name",
+      value = entry$name
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "asset_value",
+      value = entry$value
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "asset_growth",
+      value = entry$growth
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "asset_contribution",
+      value = entry$contribution
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "employer_contribution",
+      value = entry$employer_contribution
+    )
+    updateSelectizeInput(
+      session = session,
+      inputId = "contribution_tax_type",
+      selected = entry$contribution_tax_type
+    )
+    updateTextInput(
+      session = session,
+      inputId = "asset_income_link",
+      value = entry$income_link
+    )
+  })
+  # dt_debts_rows_selected
+  observe({
+    entry <- NULL
+    entry$name <- ""
+    entry$value <- 100000
+    entry$interest_rate <- 0.056
+    entry$payment <- 300
+    if(is_something(input$dt_debts_rows_selected)){
+      entry <- values$finances$data$debts[input$dt_debts_rows_selected, ]
+    }
+    updateTextInput(
+      session = session,
+      inputId = "debt_name",
+      value = entry$name
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "debt_value",
+      value = entry$value
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "debt_interest_rate",
+      value = entry$interest_rate
+    )
+    updateNumericInput(
+      session = session,
+      inputId = "debt_payment",
+      value = entry$payment
+    )
+  })
+  # action_buttons  ----------
+  observeEvent(input$reset, ignoreInit = TRUE, {
+    values$finances <- load_sample_finances()
+  })
+  observeEvent(input$remove_all, ignoreInit = TRUE, {
+    values$finances <- NULL
+    values$finances <- load_finances(BLANK_FINANCES)
+    print("Removed!")
+  })
+  observeEvent(input$update_selected_income, ignoreInit = TRUE, {
+    if(is_something(input$income_name)){
+      finances <- values$finances
+      values$finances <- NULL
+      values$finances <- finances$add_income(
+        name = input$income_name,
+        gross = input$income_gross,
+        take_home= input$income_take_home,
+        pre_tax_deductions = input$pre_tax_deductions
+      )
+    }
+  })
+  observeEvent(input$remove_selected_income, ignoreInit = TRUE, {
+    if (is_something(input$dt_incomes_rows_selected)) {
+      finances <- values$finances
+      values$finances <- NULL
+      name <- finances$data$incomes$name[input$dt_incomes_rows_selected]
+      values$finances <- finances$remove_incomes(name = name)
+    }
+  })
+  observeEvent(input$remove_incomes, ignoreInit = TRUE, {
+    finances <- values$finances
+    values$finances <- NULL
+    values$finances <- finances$remove_incomes()
+  })
+  observeEvent(input$update_selected_debt, ignoreInit = TRUE, {
+    if(is_something(input$debt_name)){
+      finances <- values$finances
+      values$finances <- NULL
+      values$finances <- finances$add_debt(
+        name = input$debt_name,
+        value = input$debt_value,
+        interest_rate= input$debt_interest_rate,
+        payment = input$debt_payment
+      )
+    }
+  })
+  observeEvent(input$remove_selected_debt, ignoreInit = TRUE, {
+    if (is_something(input$dt_debts_rows_selected)) {
+      finances <- values$finances
+      values$finances <- NULL
+      name <- finances$data$debts$name[input$dt_debts_rows_selected]
+      values$finances <- finances$remove_debts(name = name)
+    }
+  })
+  observeEvent(input$remove_debts, ignoreInit = TRUE, {
+    finances <- values$finances
+    values$finances <- NULL
+    values$finances <- finances$remove_debts()
+  })
+  observeEvent(input$update_selected_asset, ignoreInit = TRUE, {
+    if(is_something(input$asset_name)){
+      finances <- values$finances
+      values$finances <- NULL
+      values$finances <- finances$add_asset(
+        name = input$asset_name,
+        value = input$asset_value,
+        growth= input$asset_growth,
+        contribution = input$asset_contribution,
+        employer_contribution = input$asset_employer_contribution,
+        contribution_tax_type = input$asset_contribution_tax_type,
+        income_link = ifelse(nzchar(input$asset_income_link), input$asset_income_link, NA)
+      )
+    }
+  })
+  observeEvent(input$remove_selected_asset, ignoreInit = TRUE, {
+    if (is_something(input$dt_assets_rows_selected)) {
+      finances <- values$finances
+      values$finances <- NULL
+      name <- finances$data$assets$name[input$dt_assets_rows_selected]
+      values$finances <- finances$remove_assets(name = name)
+    }
+  })
+  observeEvent(input$remove_assets, ignoreInit = TRUE, {
+    finances <- values$finances
+    values$finances <- NULL
+    values$finances <- finances$remove_assets()
+  })
+  observeEvent(input$update_selected_expense, ignoreInit = TRUE, {
+    if(is_something(input$expense_name)){
+      finances <- values$finances
+      values$finances <- NULL
+      values$finances <- finances$add_expense(
+        name = input$expense_name,
+        category = input$expense_category,
+        amount= input$expense_amount,
+        type = input$expense_type
+      )
+    }
+  })
+  observeEvent(input$remove_selected_expense, ignoreInit = TRUE, {
+    if (is_something(input$dt_expenses_rows_selected)) {
+      finances <- values$finances
+      values$finances <- NULL
+      name <- finances$data$expenses$name[input$dt_expenses_rows_selected]
+      values$finances <- finances$remove_expenses(name = name)
+    }
+  })
+  observeEvent(input$remove_expenses, ignoreInit = TRUE, {
+    finances <- values$finances
+    values$finances <- NULL
+    values$finances <- finances$remove_expenses()
+  })
+  observeEvent(input$finances_file, ignoreInit = TRUE, {
+    req(input$finances_file)
+    values$finances <- load_finances(
+      file_path = input$finances_file$datapath
+    )
+  })
+  # mod_list----
+  if (golem::app_dev()) {
+    mod_list_server("input_list", values = input)
+    mod_list_server("values_list", values = values)
+  }
+  # download ------
+  volumes <- c(
+    Home = fs::path_home(),
+    "R Installation" = R.home(),
+    shinyFiles::getVolumes()()
+  )
+  shinyFiles::shinyFileSave(
+    input,
+    "download",
+    roots = volumes,
+    session = session
+  )
+  observeEvent(input$download, ignoreInit = TRUE, {
+    req(!is.integer(input$download))
+    save_path <- shinyFiles::parseSavePath(
+      volumes,
+      input$download
+    )
+    values$finances$save_excel(
+      dir = dirname(save_path$datapath),
+      file = tools::file_path_sans_ext(
+        basename(save_path$datapath)
+      )
+    )
+  })
 }

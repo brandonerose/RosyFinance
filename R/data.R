@@ -176,6 +176,7 @@ FinancialData <- R6::R6Class(
             )
           )
         )
+      #if input link update income too transform
       invisible(self)
     },
     remove_assets = function(name = NULL) {

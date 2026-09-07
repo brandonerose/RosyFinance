@@ -13,6 +13,7 @@ Imports:
     config,
     dplyr,
     DT,
+    fs,
     golem,
     listviewer,
     lubridate,
@@ -24,8 +25,10 @@ Imports:
     shiny,
     shinydashboard,
     shinydashboardPlus,
+    shinyFiles,
     shinyWidgets,
-    tibble
+    tibble,
+    tools
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
