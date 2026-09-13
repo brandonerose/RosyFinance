@@ -135,7 +135,7 @@ app_ui <- function(request) {
               column(
                 width = 3,
                 numericInput(
-                  inputId = "pre_tax_deductions",
+                  inputId = "income_pre_tax_deductions",
                   label = "Pre-tax Deductions",
                   value = 5000,
                   min = 0,

@@ -192,7 +192,7 @@ app_server <- function(input, output, session) {
     )
     updateNumericInput(
       session = session,
-      inputId = "pre_tax_deductions",
+      inputId = "income_pre_tax_deductions",
       value = entry$pre_tax_deductions
     )
   })
@@ -262,12 +262,12 @@ app_server <- function(input, output, session) {
     )
     updateNumericInput(
       session = session,
-      inputId = "employer_contribution",
+      inputId = "asset_employer_contribution",
       value = entry$employer_contribution
     )
     updateSelectizeInput(
       session = session,
-      inputId = "contribution_tax_type",
+      inputId = "asset_contribution_tax_type",
       selected = entry$contribution_tax_type
     )
     updateTextInput(
@@ -324,7 +324,7 @@ app_server <- function(input, output, session) {
         name = input$income_name,
         gross = input$income_gross,
         take_home= input$income_take_home,
-        pre_tax_deductions = input$pre_tax_deductions
+        pre_tax_deductions = input$income_pre_tax_deductions
       )
     }
   })
