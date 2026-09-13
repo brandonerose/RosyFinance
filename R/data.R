@@ -323,7 +323,7 @@ FinancialData <- R6::R6Class(
       debts <- private$project$data$debts
       flow_df <- data.frame(from = character(0),
                             to = character(0),
-                            value = integer(0)) |> as_tibble()
+                            value = integer(0)) |> tibble:: as_tibble()
       debt_expenses <- get_debt_expenses(private$project$data)
       if (nrow(debt_expenses) > 0) {
         expenses <- expenses |> dplyr::bind_rows(debt_expenses)
