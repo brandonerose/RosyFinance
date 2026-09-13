@@ -9,7 +9,7 @@ app_ui <- function(request) {
       options = list(sidebarExpandOnHover = FALSE),
       header = dbHeader(),
       sidebar = dbSidebar(
-        switchInput(
+        shinyWidgets::switchInput(
           inputId = "time_mode_yearly",
           onLabel = "Yearly",
           offLabel = "Monthly",
@@ -460,7 +460,7 @@ app_ui <- function(request) {
         )
       ),
       controlbar = dbControlbar(
-        awesomeCheckbox(
+        shinyWidgets::awesomeCheckbox(
           inputId = "allow_multiple_groups",
           label = "Allow Multiple Groups",
           value = FALSE
