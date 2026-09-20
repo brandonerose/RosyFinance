@@ -2,7 +2,7 @@
 dbSidebar <- function(...) {
   dashboardSidebar(
     minified = FALSE,
-    colapsed = FALSE,
+    collapsed = FALSE,
     TCD_SBH(),
     sidebarMenu(id = "sb1", ..., backend_menu_item()),
     TCD_SBF()
