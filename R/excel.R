@@ -139,7 +139,7 @@ save_csv <- function(form, dir, file_name, overwrite = TRUE) {
     cli_alert_info("Already a file! {.file {path}}")
   }
   if (write_it) {
-    write.csv(x = form, file = path, row.names = FALSE)
+    utils::write.csv(x = form, file = path, row.names = FALSE)
     cli_alert_success("Saved {basename(path)}: {.file {path}}")
   }
 }

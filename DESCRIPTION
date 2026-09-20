@@ -17,6 +17,7 @@ Imports:
     fs,
     golem,
     listviewer,
+    openxlsx2,
     plotly,
     purrr,
     R6,
@@ -27,8 +28,10 @@ Imports:
     shinydashboardPlus,
     shinyFiles,
     shinyWidgets,
+    stringr,
     tibble,
-    tools
+    tools,
+    utils
 Suggests: 
     spelling,
     testthat (>= 3.0.0)

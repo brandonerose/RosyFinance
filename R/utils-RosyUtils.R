@@ -216,3 +216,63 @@ is_env_name <- function(env_name, silent = FALSE) {
   )
   return(result)
 }
+#' @noRd
+is_consecutive_srt_1 <- function(vec) {
+  if (vec[1] != 1L) {
+    return(FALSE)
+  }
+  if (length(vec) > 1) {
+    for (i in 2:length(vec)) {
+      if (vec[i] != vec[i - 1] + 1) {
+        return(FALSE)
+      }
+    }
+  }
+  TRUE
+}
+#' @noRd
+sanitize_path <- function(path) {
+  sanitized <- gsub("\\\\", "/", path)
+  sanitized <- normalizePath(sanitized, winslash = "/", mustWork = FALSE)
+  return(sanitized)
+}
+#' @noRd
+unique_trimmed_strings <- function(strings, max_length) {
+  trim_string <- function(s, max_length) {
+    substr(s, 1, max_length)
+  }
+  trimmed_strings <- lapply(strings, trim_string, max_length = max_length) |>
+    unlist()
+  # Initialize a vector to store unique strings
+  unique_strings <- character(length(trimmed_strings))
+  # Initialize a counter to keep track of occurrences
+  counts <- integer(length(trimmed_strings))
+  for (i in seq_along(trimmed_strings)) {
+    base_string <- trimmed_strings[i]
+    new_string <- base_string
+    counter <- 1
+    # Keep adjusting the string until it's unique
+    while (new_string %in% unique_strings) {
+      new_string <- paste0(
+        stringr::str_trunc(
+          base_string,
+          width = max_length - (counter),
+          side = "right",
+          ellipsis = ""
+        ),
+        counter
+      )
+      counter <- counter + 1
+    }
+    unique_strings[i] <- new_string
+    counts[i] <- counter
+  }
+  unique_strings
+}
+which_duplicated <- function(x) {
+  which(duplicated(x))
+}
+#' @noRd
+which_length <- function(x) {
+  length(which(x))
+}

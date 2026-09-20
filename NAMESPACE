@@ -5,6 +5,7 @@ export(run_RosyFinance)
 import(golem)
 import(shiny)
 import(shinydashboard)
+importFrom(R6,R6Class)
 importFrom(checkmate,
   assert_character,
   assert_choice
@@ -22,7 +23,17 @@ importFrom(golem,
   favicon,
   with_golem_options
 )
+importFrom(openxlsx2,
+  create_border,
+  create_cell_style,
+  create_fill,
+  create_font,
+  wb_color,
+  wb_dims,
+  wb_workbook
+)
 importFrom(shiny,shinyApp)
+importFrom(stringr,str_trunc)
 importFrom(tibble,
   as_tibble,
   tibble,
