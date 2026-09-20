@@ -4,27 +4,28 @@ dbSidebar <- function(...) {
     minified = FALSE,
     collapsed = FALSE,
     TCD_SBH(),
-    sidebarMenu(id = "sb1", ..., backend_menu_item()),
+    shinydashboard::sidebarMenu(id = "sb1", ..., backend_menu_item()),
     TCD_SBF()
   )
 }
 #' @noRd
 backend_menu_item <- function() {
-  if (golem::app_prod())
+  if (golem::app_prod()) {
     return(NULL)
-  menuItem(text = "Backend",
+  }
+  shinydashboard::menuItem(text = "Backend",
            tabName = "backend",
            icon = shiny::icon("gear"))
 }
 #' @noRd
 dbBody <- function(...) {
-  dashboardBody(tabItems(..., tabItem("backend", fluidRow(
-    box(
+  shinydashboard::dashboardBody(shinydashboard::tabItems(..., shinydashboard::tabItem("backend", fluidRow(
+    shinydashboardbox(
       title = h1("Input List"),
       width = 12L,
       mod_list_ui("input_list")
     ),
-    box(
+    shinydashboard::box(
       title = h1("Values List"),
       width = 12L,
       mod_list_ui("values_list")
