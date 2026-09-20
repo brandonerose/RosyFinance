@@ -1,6 +1,6 @@
 #' @noRd
 dbSidebar <- function(...) {
-  shinydashboardPlus::dashboardSidebar(
+  dashboardSidebar(
     minified = FALSE,
     colapsed = FALSE,
     TCD_SBH(),
@@ -34,7 +34,7 @@ dbBody <- function(...) {
 }
 #' @noRd
 dbHeader <- function(...) {
-  shinydashboardPlus::dashboardHeader(title = tagList(
+  dashboardHeader(title = tagList(
     span(class = "logo-lg", "RosyFinance"),
     tags$a(
       href = "https://thecodingdocs.com",
@@ -45,7 +45,7 @@ dbHeader <- function(...) {
 }
 #' @noRd
 dbControlbar <- function(...) {
-  shinydashboardPlus::dashboardControlbar(
+  dashboardControlbar(
     TCD_SBH(),
     div(style = "text-align:center", p(
       paste0("RosyFinance", " Version: ", "pkg_version")
@@ -133,7 +133,7 @@ TCD_SBF <- function() {
 }
 #' @noRd
 TCD_NF <- function() {
-  shinydashboardPlus::dashboardFooter(left = shiny::div(
+  dashboardFooter(left = shiny::div(
     fluidRow(
       shiny::actionButton(
         inputId = "ab1",

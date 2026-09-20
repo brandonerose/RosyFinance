@@ -5,7 +5,7 @@ app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
-    shinydashboardPlus::dashboardPage(
+    dashboardPage(
       options = list(sidebarExpandOnHover = FALSE),
       header = dbHeader(),
       sidebar = dbSidebar(
