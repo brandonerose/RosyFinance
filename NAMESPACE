@@ -2,9 +2,7 @@
 
 export(load_finances)
 export(run_RosyFinance)
-import(golem)
 import(shiny)
-import(shinydashboard)
 importFrom(R6,R6Class)
 importFrom(checkmate,
   assert_character,
@@ -19,6 +17,8 @@ importFrom(cli,
 importFrom(golem,
   activate_js,
   add_resource_path,
+  app_dev,
+  app_prod,
   bundle_resources,
   favicon,
   with_golem_options
@@ -33,6 +33,24 @@ importFrom(openxlsx2,
   wb_workbook
 )
 importFrom(shiny,shinyApp)
+importFrom(shinydashboard,
+  box,
+  dashboardBody,
+  menuItem,
+  renderValueBox,
+  sidebarMenu,
+  tabItem,
+  tabItems,
+  valueBox,
+  valueBoxOutput
+)
+importFrom(shinydashboardPlus,
+  dashboardControlbar,
+  dashboardFooter,
+  dashboardHeader,
+  dashboardPage,
+  dashboardSidebar
+)
 importFrom(stringr,str_trunc)
 importFrom(tibble,
   as_tibble,

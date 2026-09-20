@@ -63,7 +63,7 @@ app_ui <- function(request) {
       body = dbBody(
         # home--------
         tabItem("home", fluidRow(
-          shinydashboard::box(
+          box(
             width = 12L,
             fluidRow(
               valueBoxOutput("incomes_box", width = 3),
@@ -82,11 +82,11 @@ app_ui <- function(request) {
               valueBoxOutput("net_worth_box", width = 6)
             )
           ),
-          shinydashboard::box(
+          box(
             width = 12L,
             plotly::plotlyOutput("sankey", height = "800px")
           ),
-          shinydashboard::box(
+          box(
             width = 12L,
             plotly::plotlyOutput("treemap", height = "800px")
           )
@@ -94,12 +94,12 @@ app_ui <- function(request) {
         # incomes--------
         tabItem(
           tabName = "incomes",
-          shinydashboard::box(
+          box(
             title = h1("Incomes"),
             width = 12L
-            # fluidRow(shinydashboard::box(width = 12, uiOutput("expense_boxes")))
+            # fluidRow(box(width = 12, uiOutput("expense_boxes")))
           ),
-          shinydashboard::box(
+          box(
             title = h1("Modify"),
             width = 12L,
             fluidRow(
@@ -171,7 +171,7 @@ app_ui <- function(request) {
               )
             )
           ),
-          shinydashboard::box(
+          box(
             title = h1("Table"),
             width = 12,
             DT::DTOutput("dt_incomes")
@@ -180,12 +180,12 @@ app_ui <- function(request) {
         # debts--------
         tabItem(
           tabName = "debts",
-          shinydashboard::box(
+          box(
             title = h1("Debts"),
             width = 12L
-            # fluidRow(shinydashboard::box(width = 12, uiOutput("expense_boxes")))
+            # fluidRow(box(width = 12, uiOutput("expense_boxes")))
           ),
-          shinydashboard::box(
+          box(
             title = h1("Modify"),
             width = 12L,
             fluidRow(
@@ -257,7 +257,7 @@ app_ui <- function(request) {
               )
             )
           ),
-          shinydashboard::box(
+          box(
             title = h1("Table"),
             width = 12,
             DT::DTOutput("dt_debts")
@@ -266,12 +266,12 @@ app_ui <- function(request) {
         # assets--------
         tabItem(
           tabName = "assets",
-          shinydashboard::box(
+          box(
             title = h1("Assets"),
             width = 12L
-            # fluidRow(shinydashboard::box(width = 12, uiOutput("expense_boxes")))
+            # fluidRow(box(width = 12, uiOutput("expense_boxes")))
           ),
-          shinydashboard::box(
+          box(
             title = h1("Modify"),
             width = 12L,
             fluidRow(
@@ -372,7 +372,7 @@ app_ui <- function(request) {
               )
             )
           ),
-          shinydashboard::box(
+          box(
             title = h1("Table"),
             width = 12,
             DT::DTOutput("dt_assets")
@@ -381,12 +381,12 @@ app_ui <- function(request) {
         # expenses--------
         tabItem(
           tabName = "expenses",
-          shinydashboard::box(
+          box(
             title = h1("Expenses"),
             width = 12L,
-            fluidRow(shinydashboard::box(width = 12, uiOutput("expense_boxes")))
+            fluidRow(box(width = 12, uiOutput("expense_boxes")))
           ),
-          shinydashboard::box(
+          box(
             title = h1("Modify"),
             width = 12L,
             fluidRow(
@@ -452,7 +452,7 @@ app_ui <- function(request) {
               )
             )
           ),
-          shinydashboard::box(
+          box(
             title = h1("Table"),
             width = 12,
             DT::DTOutput("dt_expenses")

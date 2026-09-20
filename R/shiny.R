@@ -4,28 +4,28 @@ dbSidebar <- function(...) {
     minified = FALSE,
     colapsed = FALSE,
     TCD_SBH(),
-    shinydashboard::sidebarMenu(id = "sb1", ..., backend_menu_item()),
+    sidebarMenu(id = "sb1", ..., backend_menu_item()),
     TCD_SBF()
   )
 }
 #' @noRd
 backend_menu_item <- function() {
-  if (golem::app_prod()) {
+  if (app_prod()) {
     return(NULL)
   }
-  shinydashboard::menuItem(text = "Backend",
+  menuItem(text = "Backend",
            tabName = "backend",
            icon = shiny::icon("gear"))
 }
 #' @noRd
 dbBody <- function(...) {
-  shinydashboard::dashboardBody(shinydashboard::tabItems(..., shinydashboard::tabItem("backend", fluidRow(
-    shinydashboard::box(
+  dashboardBody(tabItems(..., tabItem("backend", fluidRow(
+    box(
       title = h1("Input List"),
       width = 12L,
       mod_list_ui("input_list")
     ),
-    shinydashboard::box(
+    box(
       title = h1("Values List"),
       width = 12L,
       mod_list_ui("values_list")
@@ -85,7 +85,7 @@ mod_list_server <- function(id, values) {
 }
 #' @noRd
 TCD_SBH <- function() {
-  shinydashboard::sidebarMenu(shiny::div(
+  sidebarMenu(shiny::div(
     style = "text-align:center",
     tags$a(
       href = "https://thecodingdocs.com",
@@ -96,33 +96,33 @@ TCD_SBH <- function() {
 }
 #' @noRd
 TCD_SBF <- function() {
-  shinydashboard::sidebarMenu(
-    shinydashboard::menuItem(
+  sidebarMenu(
+    menuItem(
       text = "Donate!",
       icon = shiny::icon("dollar"),
       href = "https://account.venmo.com/u/brandonerose"
     ),
-    shinydashboard::menuItem(
+    menuItem(
       text = "TheCodingDocs.com",
       icon = shiny::icon("stethoscope"),
       href = "https://thecodingdocs.com"
     ),
-    shinydashboard::menuItem(
+    menuItem(
       text = "GitHub Code",
       icon = shiny::icon("github"),
       href = "https://github.com/brandonerose/"
     ),
-    shinydashboard::menuItem(
+    menuItem(
       text = "TheCodingDocs",
       icon = shiny::icon("twitter"),
       href = "https://twitter.com/TheCodingDocs"
     ),
-    shinydashboard::menuItem(
+    menuItem(
       text = "BRoseMDMPH",
       icon = shiny::icon("twitter"),
       href = "https://twitter.com/BRoseMDMPH"
     ),
-    shinydashboard::menuItem(
+    menuItem(
       text = "Brandon Rose, MD, MPH",
       icon = shiny::icon("user-doctor"),
       href = "https://www.thecodingdocs.com/founder"

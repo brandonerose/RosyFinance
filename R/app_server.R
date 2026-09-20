@@ -426,7 +426,7 @@ app_server <- function(input, output, session) {
     )
   })
   # mod_list----
-  if (golem::app_dev()) {
+  if (app_dev()) {
     mod_list_server("input_list", values = input)
     mod_list_server("values_list", values = values)
   }
