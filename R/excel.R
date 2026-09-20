@@ -1,0 +1,476 @@
+#' @noRd
+list_to_excel <- function(input_list,
+                          dir,
+                          file_name = NULL,
+                          separate = FALSE,
+                          overwrite = TRUE,
+                          key_cols_list = list(),
+                          derived_cols_list = list(),
+                          link_col_list = list(),
+                          str_trunc_length = 32000L,
+                          header_df_list = NULL,
+                          header_color = "#74DFFF",
+                          header_font_size = 14L,
+                          header_font_color = "black",
+                          body_font_size = 12L,
+                          body_font_color = "black",
+                          font_name = "Arial",
+                          freeze_header = TRUE,
+                          pad_rows = 0L,
+                          pad_cols = 0L,
+                          freeze_keys = TRUE,
+                          drop_empty = TRUE) {
+  if (is.null(key_cols_list)) {
+    key_cols_list <- list()
+  }
+  if (is.null(link_col_list)) {
+    link_col_list <- list()
+  }
+  if (is.null(derived_cols_list)) {
+    derived_cols_list <- list()
+  }
+  input_list <- process_df_list(input_list, drop_empty = drop_empty)
+  list_names <- names(input_list)
+  if (length(input_list) == 0L) {
+    return(warning("empty input_list cannot be saved", immediate. = TRUE))
+  }
+  if (separate) {
+    for (i in seq_along(input_list)) {
+      sub_list <- input_list[i]
+      file_name2 <- names(sub_list)
+      if (!is.null(file_name)) {
+        file_name2 <- paste0(file_name, "_", file_name2)
+      }
+      keep_keys <- which(names(key_cols_list) == list_names[i])
+      keep_deriveds <- which(names(derived_cols_list) == list_names[i])
+      key_cols_list_i <- key_cols_list[keep_keys]
+      derived_cols_list_i <- derived_cols_list[keep_deriveds]
+      save_wb(
+        wb = list_to_wb(
+          input_list = sub_list,
+          key_cols_list = key_cols_list_i,
+          derived_cols_list = derived_cols_list_i,
+          link_col_list = link_col_list,
+          str_trunc_length = str_trunc_length,
+          header_df_list = header_df_list,
+          header_color = header_color,
+          header_font_size = header_font_size,
+          header_font_color = header_font_color,
+          body_font_size = body_font_size,
+          body_font_color = body_font_color,
+          font_name = font_name,
+          freeze_header = freeze_header,
+          pad_rows = pad_rows,
+          pad_cols = pad_cols,
+          freeze_keys = freeze_keys,
+          drop_empty = drop_empty
+        ),
+        dir = dir,
+        file_name = file_name2,
+        overwrite = overwrite
+      )
+    }
+  } else {
+    save_wb(
+      wb = list_to_wb(
+        input_list = input_list,
+        key_cols_list = key_cols_list,
+        derived_cols_list = derived_cols_list,
+        link_col_list = link_col_list,
+        str_trunc_length = str_trunc_length,
+        header_df_list = header_df_list,
+        header_color = header_color,
+        header_font_size = header_font_size,
+        header_font_color = header_font_color,
+        body_font_size = body_font_size,
+        body_font_color = body_font_color,
+        font_name = font_name,
+        freeze_header = freeze_header,
+        pad_rows = pad_rows,
+        pad_cols = pad_cols,
+        freeze_keys = freeze_keys,
+        drop_empty = drop_empty
+      ),
+      dir = dir,
+      file_name = file_name,
+      overwrite = overwrite
+    )
+  }
+}
+#' @noRd
+save_wb <- function(wb, dir, file_name, overwrite = TRUE) {
+  if (!dir.exists(dir)) {
+    cli_abort("dir doesn't exist: {.file {dir}}")
+  }
+  path <- file.path(dir, paste0(file_name, ".xlsx")) |> sanitize_path()
+  wb$save(file = path, overwrite = overwrite)
+  cli_alert_success("Saved {basename(path)}: {.file {path}}")
+}
+#' @noRd
+list_to_csv <- function(input_list,
+                        dir,
+                        file_name = NULL,
+                        overwrite = TRUE,
+                        drop_empty = TRUE) {
+  input_list <- process_df_list(input_list, drop_empty = drop_empty)
+  for (i in seq_along(input_list)) {
+    sub_list <- input_list[i]
+    file_name2 <- names(sub_list)
+    if (!is.null(file_name)) {
+      file_name2 <- paste0(file_name, "_", file_name2)
+    }
+    save_csv(
+      form = sub_list[[1L]],
+      dir = dir,
+      file_name = file_name2,
+      overwrite = overwrite
+    )
+  }
+}
+#' @noRd
+save_csv <- function(form, dir, file_name, overwrite = TRUE) {
+  if (!dir.exists(dir)) {
+    cli_abort("dir doesn't exist: {.file {dir}}")
+  }
+  path <- file.path(dir, paste0(file_name, ".csv")) |> sanitize_path()
+  write_it <- TRUE
+  if (!overwrite && file.exists(path)) {
+    write_it <- FALSE
+    cli_alert_info("Already a file! {.file {path}}")
+  }
+  if (write_it) {
+    write.csv(x = form, file = path, row.names = FALSE)
+    cli_alert_success("Saved {basename(path)}: {.file {path}}")
+  }
+}
+#' @noRd
+list_to_wb <- function(input_list,
+                       key_cols_list = list(),
+                       derived_cols_list = list(),
+                       link_col_list = list(),
+                       str_trunc_length = 32000L,
+                       header_df_list = NULL,
+                       header_color = "#74DFFF",
+                       header_font_size = 14L,
+                       header_font_color = "black",
+                       body_font_size = 12L,
+                       body_font_color = "black",
+                       font_name = "Arial",
+                       freeze_header = TRUE,
+                       pad_rows = 0L,
+                       pad_cols = 0L,
+                       freeze_keys = TRUE,
+                       drop_empty = TRUE) {
+  if (is.null(key_cols_list)) {
+    key_cols_list <- list()
+  }
+  if (is.null(link_col_list)) {
+    link_col_list <- list()
+  }
+  if (is.null(derived_cols_list)) {
+    derived_cols_list <- list()
+  }
+  input_list <- process_df_list(input_list, drop_empty = drop_empty)
+  list_names <- names(input_list)
+  list_link_names <- list()
+  if (length(link_col_list) > 0L) {
+    if (is_named_list(link_col_list)) {
+      if (!all(names(link_col_list) %in% list_names)) {
+        for (list_name in list_names) {
+          list_link_names[[list_name]] <- link_col_list
+        }
+      }
+    }
+  }
+  list_names_rename <- rename_list_names_excel(list_names = list_names)
+  wb <- wb_workbook() |>
+    add_wb_styles(header_color = header_color,
+                  header_font_size = header_font_size,
+                  header_font_color = header_font_color,
+                  body_font_size = body_font_size,
+                  body_font_color = body_font_color,
+                  font_name = font_name)
+  for (i in seq_along(list_names)) {
+    wb <- form_to_wb(
+      form = input_list[[list_names[i]]],
+      form_name = list_names_rename[i],
+      wb = wb,
+      key_cols = key_cols_list[[list_names[i]]],
+      derived_cols = NULL,
+      link_col_list = list_link_names[[list_names[i]]],
+      str_trunc_length = str_trunc_length,
+      header_df = header_df_list[[list_names[i]]],
+      freeze_header = freeze_header,
+      pad_rows = pad_rows,
+      pad_cols = pad_cols,
+      freeze_keys = freeze_keys
+    )
+  }
+  wb
+}
+#' @noRd
+add_wb_styles <- function(wb,
+                          header_color = "#74DFFF",
+                          header_font_size = 14L,
+                          header_font_color = "black",
+                          body_font_size = 12L,
+                          body_font_color = "black",
+                          font_name = "Arial") {
+  wb_black <- wb_color("black")
+  default_border <- create_border(
+    bottom = "thin", bottom_color = wb_black,
+    top = "thin", top_color = wb_black,
+    left = "thin", left_color = wb_black,
+    right = "thin", right_color = wb_black
+  )
+  default_fill <- create_fill(pattern_type = "solid",
+                              fg_color = wb_color(hex = header_color))
+  header_font <- create_font(
+    sz = header_font_size,
+    name = font_name,
+    b = TRUE,
+    color = wb_color(header_font_color)
+  )
+  body_font <- create_font(
+    sz = body_font_size,
+    name = font_name,
+    b = FALSE,
+    color = wb_color(body_font_color)
+  )
+  wb$styles_mgr$add(default_border, "default_border")
+  wb$styles_mgr$add(default_fill, "default_fill")
+  wb$styles_mgr$add(header_font, "header_font")
+  wb$styles_mgr$add(body_font, "body_font")
+  header_style <- create_cell_style(
+    num_fmt_id = 1,
+    horizontal = "center",
+    vertical = "center",
+    fill_id = wb$styles_mgr$get_fill_id("default_fill"),
+    font_id = wb$styles_mgr$get_font_id("header_font"),
+    border_id = wb$styles_mgr$get_border_id("default_border")
+  )
+  body_style <- create_cell_style(
+    num_fmt_id = 2,
+    horizontal = "left",
+    vertical = "center",
+    font_id = wb$styles_mgr$get_font_id("body_font")
+  )
+  wb$styles_mgr$add(header_style, "header_style")
+  wb$styles_mgr$add(body_style, "body_style")
+  wb
+}
+#' @noRd
+form_to_wb <- function(form,
+                       form_name,
+                       wb = wb_workbook(),
+                       key_cols = NULL,
+                       derived_cols = NULL,
+                       link_col_list = list(),
+                       str_trunc_length = 32000L,
+                       header_df = NULL,
+                       freeze_header = TRUE,
+                       pad_rows = 0L,
+                       pad_cols = 0L,
+                       freeze_keys = TRUE) {
+  if (nchar(form_name) > 31L) {
+    cli_abort("{.arg form_name} is longer than 31 char")
+  }
+  form[] <- lapply(form, function(col) {
+    out <- col
+    if (is.character(col)) {
+      out <- str_trunc(col, str_trunc_length, ellipsis = "")
+    }
+    out
+  })
+  hyperlink_col <- NULL
+  if (is_something(header_df)) {
+    names(header_df)[match(names(form), names(header_df))]
+    missing_headers <- names(form) |>  vec1_not_in_vec2(names(header_df))
+    if (length(missing_headers) > 0L) {
+      for (missing_header in missing_headers){
+        header_df[[missing_header]] <- ""
+        #fix later
+      }
+    }
+  }
+  if (freeze_keys) {
+    all_cols <- colnames(form)
+    if (!all(key_cols %in% all_cols)) {
+      cli_abort("all key_cols must be in the forms")
+    }
+    freeze_key_cols <- which(all_cols %in% key_cols)
+    if (length(freeze_key_cols) > 0L) {
+      if (!is_consecutive_srt_1(freeze_key_cols)) {
+        # warning?
+        non_key_cols <- seq_len(ncol(form))
+        non_key_cols <- non_key_cols[which(!non_key_cols %in% freeze_key_cols)]
+        new_col_order <- c(freeze_key_cols, non_key_cols)
+        if (is_something(header_df)) {
+          header_df <- header_df[, new_col_order]
+        }
+        form <- form[, new_col_order]
+      }
+    }
+  }
+  wb$add_worksheet(form_name)
+  start_row_header <- pad_rows + 1L
+  start_row_table <- start_row_header
+  start_col <- pad_cols + 1L
+  if (is_something(header_df)) {
+    wb$add_data(
+      sheet = form_name,
+      x = header_df,
+      start_row = start_row_header,
+      start_col = start_col,
+      col_names = FALSE
+    )
+    start_row_table <- start_row_header + nrow(header_df)
+  }
+  has_links <- FALSE
+  link_list <- NULL
+  if (length(link_col_list) > 0L) {
+    has_names <- !is.null(names(link_col_list))
+    for (i in seq_along(link_col_list)) {
+      if (has_names) {
+        if (names(link_col_list)[i] %in% colnames(form)) {
+          link_list[[names(link_col_list)[i]]] <- form[[link_col_list[[i]]]]
+          has_links <- TRUE
+          form[[link_col_list[[i]]]] <- NULL
+        } # else warning?
+      }
+    }
+  }
+  #add_data_table?
+  wb$add_data(
+    sheet = form_name,
+    x = form,
+    start_row = start_row_table,
+    start_col = start_col,
+    with_filter = TRUE,
+    na = ""
+  )
+  if (has_links) {
+    for (col_name in names(link_list)) {
+      hyperlink_col <- which(colnames(form) == col_name)
+      wb$add_hyperlink(
+        sheet = form_name,
+        dims = wb_dims(
+          rows = seq_len(nrow(form)) + start_row_table,
+          cols = hyperlink_col + pad_cols
+        ),
+        target = link_list[[col_name]]
+      )
+    }
+  }
+  style_cols <- seq_len(ncol(form)) + pad_cols
+  wb$set_cell_style(
+    sheet = form_name,
+    dims = wb_dims(
+      rows = seq(from = start_row_header, to = start_row_table),
+      cols = style_cols
+    ),
+    style = wb$styles_mgr$get_xf_id("header_style")
+  )
+  wb$set_cell_style(
+    sheet = form_name,
+    dims = wb_dims(
+      rows = seq_len(nrow(form)) + start_row_table,
+      cols = style_cols
+    ),
+    style = wb$styles_mgr$get_xf_id("body_style")
+  )
+  # add derived style
+  # add_locking to keys etc
+  # add protection?
+  if (freeze_header || freeze_keys) {
+    first_active_row <- NULL
+    if (freeze_header) {
+      first_active_row <- start_row_table + 1L
+    }
+    first_active_col <- NULL
+    if (freeze_keys) {
+      first_active_col <- start_col
+      freeze_key_cols <- which(colnames(form) %in% key_cols)
+      if (length(freeze_key_cols) > 0L) {
+        if (is_consecutive_srt_1(freeze_key_cols)) {
+          first_active_col <- first_active_col +
+            freeze_key_cols[length(freeze_key_cols)]
+        } else {
+          the_warning <- "key_cols should be consecutive and start at the left."
+          warning(the_warning, immediate. = TRUE)
+        }
+      }
+      wb$freeze_pane(sheet = form_name,
+                     first_active_row = first_active_row,
+                     first_active_col = first_active_col)
+    }
+  }
+  wb
+}
+#' @noRd
+rename_list_names_excel <- function(list_names) {
+  list_names_rename <- str_trunc(list_names,
+                                 width = 31L,
+                                 side = "right",
+                                 ellipsis = "")
+  bad_names <- which_duplicated(list_names_rename)
+  if (length(bad_names) > 0L) {
+    cli_alert_danger(paste0(
+      "Duplicated names when trimmed from right 31 max in Excel: ",
+      toString(list_names[bad_names])
+    ))
+    cli_alert_info(
+      paste0(
+        "Use CSV or shorten the names and make sure they are unique if they",
+        " are trimmed to 31 char. For now will make unique by adding number."
+      )
+    )
+    list_names_rename <- unique_trimmed_strings(strings = list_names_rename,
+                                                max_length = 31L)
+  }
+  list_names_rename
+}
+#' @noRd
+excel_to_list <- function(path) {# can do do with openxlsx2 as well
+  sheets <- readxl::excel_sheets(path)
+  names(sheets) <- seq_along(sheets)
+  clean_sheets <- clean_env_names(sheets)
+  out <- list()
+  if ("dataset_details" %in% sheets) {
+    dataset_details <- readxl::read_xlsx(
+      path,
+      col_types = "text",
+      sheet = which(sheets == "dataset_details")
+    )
+    if (all(c("paramater", "value") %in% colnames(dataset_details))) {
+      the_row <- which(dataset_details$paramater == "raw_form_names")
+      form_names <- dataset_details$value[the_row] |>
+        strsplit(" [|] ") |>
+        unlist()
+      the_row <- which(dataset_details$paramater == "cols_start")
+      cols_start <- as.integer(dataset_details$value[the_row])
+      if (cols_start > 1L) {
+        for (i in as.integer(names(sheets)[match(form_names, sheets)])) {
+          suppressMessages({
+            out[[i]] <- readxl::read_xlsx(path,
+                                          col_types = "text",
+                                          sheet = i,
+                                          col_names = FALSE)
+          })
+          final_nrow <- nrow(out[[i]])
+          if (cols_start < final_nrow) {
+            true_colnames <- out[[i]][cols_start, ] |> unlist() |> unname()
+            out[[i]] <- out[[i]][(cols_start + 1L):final_nrow, ]
+            colnames(out[[i]]) <- true_colnames
+            sheets <- sheets[which(sheets != sheets[i])]
+          }
+        }
+      }
+    }
+  }
+  for (i in as.integer(names(sheets))) {
+    out[[i]] <- readxl::read_xlsx(path, col_types = "text", sheet = i)
+  }
+  names(out) <- clean_sheets
+  out
+}

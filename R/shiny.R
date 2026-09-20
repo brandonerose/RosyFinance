@@ -2,7 +2,7 @@
 dbSidebar <- function(...) {
   shinydashboardPlus::dashboardSidebar(
     minified = FALSE,
-    collapsed = FALSE,
+    colapsed = FALSE,
     TCD_SBH(),
     shinydashboard::sidebarMenu(id = "sb1", ..., backend_menu_item()),
     TCD_SBF()
@@ -20,7 +20,7 @@ backend_menu_item <- function() {
 #' @noRd
 dbBody <- function(...) {
   shinydashboard::dashboardBody(shinydashboard::tabItems(..., shinydashboard::tabItem("backend", fluidRow(
-    shinydashboardbox(
+    shinydashboard::box(
       title = h1("Input List"),
       width = 12L,
       mod_list_ui("input_list")

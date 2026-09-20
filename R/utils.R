@@ -7,7 +7,7 @@ years_to_payoff <- function(debt, rate, yearly_payment) {
 }
 tax_brackets <- list(
   single = list(
-    y2025 =  tibble::tribble(
+    y2025 =  tribble(
       ~lower, ~upper, ~rate,
       000000, 011925, 0.10,
       011925, 048475, 0.12,
@@ -17,7 +17,7 @@ tax_brackets <- list(
       250525, 626350, 0.35,
       626350, Inf,    0.37
     ),
-    y2026 =  tibble::tribble(
+    y2026 =  tribble(
       ~lower, ~upper, ~rate,
       000000, 012400, 0.10,
       012400, 050400, 0.12,
@@ -29,7 +29,7 @@ tax_brackets <- list(
     )
   ),
   married = list(
-    y2025 =  tibble::tribble(
+    y2025 =  tribble(
       ~lower, ~upper, ~rate,
       000000, 023850, 0.10,
       023850, 096950, 0.12,
@@ -39,7 +39,7 @@ tax_brackets <- list(
       501050, 751600, 0.35,
       751600, Inf,    0.37
     ),
-    y2026 =  tibble::tribble(
+    y2026 =  tribble(
       ~lower, ~upper, ~rate,
       000000, 023850, 0.10,
       024800, 100800, 0.12,
@@ -122,3 +122,4 @@ take_home_pay_month <- function(income,
 get_id <- function(nodes, x) {
   nodes$id[match(x, nodes$name)]
 }
+

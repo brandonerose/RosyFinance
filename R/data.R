@@ -77,7 +77,7 @@ FinancialData <- R6::R6Class(
     initialize = function(finances = BLANK_FINANCES, file_path = NULL) {
       if(!is.null(file_path)){
         if(file.exists(file_path)){
-          finances <- REDCapSync:::excel_to_list(file_path)
+          finances <- excel_to_list(file_path)
         }else{
           message("`file_path` doesn't exist... ", file_path)
         }
@@ -91,7 +91,7 @@ FinancialData <- R6::R6Class(
                           take_home,
                           pre_tax_deductions = 0) {
       # asserts
-      checkmate::assert_character(name)
+      assert_character(name)
       # data
       private$project$data <-
         private$project$data |>
@@ -124,8 +124,8 @@ FinancialData <- R6::R6Class(
                            due_month = NA,
                            due_day = 1) {
       # asserts
-      checkmate::assert_character(name)
-      checkmate::assert_choice(type, c("monthly", "yearly", "biannual"))
+      assert_character(name)
+      assert_choice(type, c("monthly", "yearly", "biannual"))
       # add
       private$project$data <-
         private$project$data |>
@@ -161,7 +161,7 @@ FinancialData <- R6::R6Class(
                          contribution_tax_type = "Post",
                          income_link = NA) {
       # asserts
-      checkmate::assert_character(name)
+      assert_character(name)
       # data
       private$project$data <-
         private$project$data |>
@@ -193,7 +193,7 @@ FinancialData <- R6::R6Class(
     },
     add_debt = function(name, value, interest_rate, payment) {
       # asserts
-      checkmate::assert_character(name)
+      assert_character(name)
       # data
       private$project$data <-
         private$project$data |>
@@ -323,7 +323,7 @@ FinancialData <- R6::R6Class(
       debts <- private$project$data$debts
       flow_df <- data.frame(from = character(0),
                             to = character(0),
-                            value = integer(0)) |> tibble:: as_tibble()
+                            value = integer(0)) |> as_tibble()
       debt_expenses <- get_debt_expenses(private$project$data)
       if (nrow(debt_expenses) > 0) {
         expenses <- expenses |> dplyr::bind_rows(debt_expenses)
@@ -346,7 +346,7 @@ FinancialData <- R6::R6Class(
         debts$yearly_interest <- debts$yearly_interest / 12
         flow_df$value <- flow_df$value / 12
       }
-      nodes <- tibble::tibble( # need to account for same names accross tables
+      nodes <- tibble( # need to account for same names accross tables
         name = c(
           incomes$name,
           paste0(incomes$name, " Employer"),
@@ -378,48 +378,48 @@ FinancialData <- R6::R6Class(
       employer_contributions <- sum(incomes$pre_tax_employer_contributions, na.rm = T)
       links <- dplyr::bind_rows(
         # Income → Combined
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, incomes$name),
           target = get_id(nodes, "Combined Income"),
           value  = incomes$take_home
         ),
         # Income → Taxes
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, incomes$name),
           target = get_id(nodes, "Taxes"),
           value  = incomes$estimated_tax
         ),
         # Income → Pre-Tax Deductions
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, incomes$name),
           target = get_id(nodes, "Pre-Tax Deductions"),
           value  = incomes$pre_tax_deductions
         ),
         # Income → Asset Pre tax
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, pre_tax_assets$income_link),
           target = get_id(nodes, pre_tax_assets$name),
           value  = pre_tax_assets$contribution
         ),
         # Employer → Asset Pre tax
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, paste0(pre_tax_assets$income_link, " Employer")),
           target = get_id(nodes, pre_tax_assets$name),
           value  = pre_tax_assets$employer_contribution
         ),
         # Combined → Total Expenses
-        tibble::tibble(
+        tibble(
           source = get_id(nodes,"Combined Income"),
           target = get_id(nodes,"Total Expenses"),
           value  = expenses$yearly_amount |> sum(na.rm = TRUE)
         ),
         # Combined → Left Over
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, "Combined Income"),
           target = get_id(nodes, "Left Over"),
           value  = left_over
         ),
-        # # tibble::tibble(
+        # # tibble(
         # #   source = get_id(nodes,"Combined Income"),
         # #   target = get_id(nodes,"Total Assets"),
         # #   value  = sum(incomes$value) |> magrittr::subtract(
@@ -427,19 +427,19 @@ FinancialData <- R6::R6Class(
         # #   )
         # # ),
         # # Combined → post_tax_assets
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, "Combined Income"),
           target = get_id(nodes, post_tax_assets$name),
           value  = post_tax_assets$contribution
         ),
         # Total Expenses → Expense categories
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, "Total Expenses"),
           target = get_id(nodes, expenses$category),
           value  = expenses$yearly_amount
         ),
         # # Expense categories → Accounts (FLOW)
-        tibble::tibble(
+        tibble(
           source = get_id(nodes, flow_df$from),
           target = get_id(nodes, flow_df$to),
           value  = flow_df$value
@@ -448,7 +448,7 @@ FinancialData <- R6::R6Class(
       if(include_assets){
         links <- links |>
           dplyr::bind_rows(
-            tibble::tibble(
+            tibble(
               source = get_id(nodes, assets$name),
               target = get_id(nodes, "Total Assets"),
               value  = assets$value |> as.integer()
@@ -457,7 +457,7 @@ FinancialData <- R6::R6Class(
         if(include_interest) {
           links <- links |>
             dplyr::bind_rows(
-              tibble::tibble(
+              tibble(
                 source = get_id(nodes, assets$name),
                 target = get_id(nodes, assets$name),
                 value  = assets$yearly_growth
@@ -468,7 +468,7 @@ FinancialData <- R6::R6Class(
       if(include_debts){
         links <- links |>
           dplyr::bind_rows(
-            tibble::tibble(
+            tibble(
               source = get_id(nodes, debts$name),
               target = get_id(nodes, "Total Debt"),
               value  = debts$value
@@ -477,7 +477,7 @@ FinancialData <- R6::R6Class(
         if(include_interest) {
           links <- links |>
             dplyr::bind_rows(
-              tibble::tibble(
+              tibble(
                 source = get_id(nodes, debts$name),
                 target = get_id(nodes, debts$name),
                 value  = debts$yearly_interest
@@ -572,17 +572,17 @@ FinancialData <- R6::R6Class(
       (debt_sum / (annual_payments - annual_interest + left_over))
       total_scale <-  income_sum
       final_df <- dplyr::bind_rows(
-        tibble::tibble(
+        tibble(
           label = "Expenses",
           parent = "Income",
           value = expenses_sum
         ),
-        tibble::tibble(
+        tibble(
           label = "Left Over",
           parent = "Income",
           value = left_over
         ),
-        tibble::tibble(
+        tibble(
           label = "Income",
           parent = "Total",
           value = income_sum
@@ -597,7 +597,7 @@ FinancialData <- R6::R6Class(
         total_scale <- total_scale + assest_sum
         final_df <- final_df |>
           dplyr::bind_rows(
-            tibble::tibble(
+            tibble(
               label = "Assests",
               parent = "Total",
               value = assest_sum
@@ -613,7 +613,7 @@ FinancialData <- R6::R6Class(
         total_scale <- total_scale + debt_sum
         final_df <- final_df |>
           dplyr::bind_rows(
-            tibble::tibble(
+            tibble(
               label = "Debt",
               parent = "Total",
               value = debt_sum
@@ -625,7 +625,7 @@ FinancialData <- R6::R6Class(
             )
           )
       }
-      final_df <- tibble::tibble(label = "Total",
+      final_df <- tibble(label = "Total",
                          parent = "",
                          value = total_scale) |>  dplyr::bind_rows(final_df)
       plotly::plot_ly(
@@ -646,7 +646,7 @@ FinancialData <- R6::R6Class(
       if (!transform) {
         save_this <- untransform_data(save_this)
       }
-      REDCapSync:::list_to_excel(input = save_this,
+      list_to_excel(input = save_this,
                                  dir = dir,
                                  file = file)
     },

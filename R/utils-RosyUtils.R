@@ -1,15 +1,4 @@
 #' @noRd
-age <- function(dob,
-                age_day = lubridate::today(),
-                units = "years",
-                floor = TRUE) {
-  calc_age <- lubridate::interval(dob, age_day) / lubridate::duration(num = 1L, units = units)
-  if (floor) {
-    return(as.integer(floor(calc_age)))
-  }
-  calc_age
-}
-#' @noRd
 process_df_list <- function(list, drop_empty = TRUE) {
   if (is_something(list)) {
     if (!is_df_list(list)) {
@@ -180,4 +169,50 @@ is_nested_list <- function(x) {
 #' @noRd
 clean_num <- function(num) {
   formatC(num, format = "d", big.mark = ",")
+}
+#' @noRd
+clean_env_names <- function(env_names, silent = FALSE, lowercase = TRUE) {
+  cleaned_names <- character(length(env_names))
+  for (i in seq_along(env_names)) {
+    name <- env_names[i]
+    is_valid <- is_env_name(name, silent = TRUE)
+    if (is_valid) cleaned_names[i] <- name
+    if (!is_valid) {
+      if (!silent) message("Invalid environment name: '", name)
+      cleaned_name <- gsub("__", "_", gsub(" ", "_", gsub("-", "", name)))
+      if (lowercase) cleaned_name <- tolower(cleaned_name)
+      if (cleaned_name %in% cleaned_names) {
+        if (!silent) {
+          message("Non-unique environment name: '", name, "', added numbers...")
+        }
+        cleaned_name <- cleaned_name |>
+          paste0("_", max(which_length(cleaned_name %in% cleaned_names)) + 1L)
+      }
+      cleaned_names[i] <- cleaned_name
+    }
+  }
+  return(cleaned_names)
+}
+#' @noRd
+is_env_name <- function(env_name, silent = FALSE) {
+  result <- tryCatch(
+    {
+      if (is.null(env_name)) stop("env_name is NULL")
+      if (nchar(env_name) == 0) {
+        stop("Short name cannot be empty.")
+      }
+      if (grepl("^\\d", env_name)) {
+        stop("Short name cannot start with a number.")
+      }
+      if (grepl("[^A-Za-z0-9_]", env_name)) {
+        stop("Short name can only contain letters, numbers, and underscores.")
+      }
+      return(TRUE) # Return TRUE if all checks pass
+    },
+    error = function(e) {
+      if (!silent) message(e$message)
+      return(FALSE) # Return FALSE if any error occurs
+    }
+  )
+  return(result)
 }
