@@ -28,6 +28,7 @@ Imports:
     shinydashboardPlus,
     shinyFiles,
     shinyWidgets,
+    stats,
     stringr,
     tibble,
     tools,

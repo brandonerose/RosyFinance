@@ -36,6 +36,7 @@
 #' @importFrom shinydashboardPlus dashboardHeader
 #' @importFrom shinydashboardPlus dashboardPage
 #' @importFrom shinydashboardPlus dashboardSidebar
+#' @importFrom stats ave
 #' @importFrom stringr str_trunc
 #' @importFrom tibble as_tibble
 #' @importFrom tibble tibble
