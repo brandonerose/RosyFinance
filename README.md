@@ -46,7 +46,7 @@ finances$calc_net_worth()
 run_RosyFinance()
 #> Loading required package: shiny
 #> 
-#> Listening on http://127.0.0.1:4903
+#> Listening on http://127.0.0.1:7980
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" alt="" width="100%" />
