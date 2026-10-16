@@ -587,7 +587,7 @@ FinancialData <- R6::R6Class(
           parent = "Total",
           value = income_sum
         ),
-        expenses %>% dplyr::transmute(
+        expenses |> dplyr::transmute(
           label = label,
           parent = parent,
           value = value
@@ -602,7 +602,7 @@ FinancialData <- R6::R6Class(
               parent = "Total",
               value = assest_sum
             ),
-            assets %>% dplyr::transmute(
+            assets |> dplyr::transmute(
               label = label,
               parent = parent,
               value = value
@@ -618,7 +618,7 @@ FinancialData <- R6::R6Class(
               parent = "Total",
               value = debt_sum
             ),
-            debts %>% dplyr::transmute(
+            debts |> dplyr::transmute(
               label = label,
               parent = parent,
               value = value
