@@ -290,7 +290,7 @@ app_server <- function(input, output, session) {
     value <- clean_num(value) |> paste0(" (", perc, ")")
     valueBox(
       value = value,
-      subtitle = "Pre Tax",
+      subtitle = "Wheels",
       icon = icon("dollar-sign"),
       color = "green"
     )
