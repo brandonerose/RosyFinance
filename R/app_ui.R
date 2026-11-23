@@ -268,7 +268,19 @@ app_ui <- function(request) {
           tabName = "assets",
           box(
             title = h1("Assets"),
-            width = 12L
+            width = 12L,
+            fluidRow(
+              valueBoxOutput("invested_box", width = 3),
+              valueBoxOutput("contribution_box", width = 3),
+              valueBoxOutput("growth2_box", width = 3),
+              valueBoxOutput("four_percent_box", width = 3)
+            ),
+            fluidRow(
+              valueBoxOutput("pre_tax_box", width = 3),
+              valueBoxOutput("post_tax_box", width = 3),
+              valueBoxOutput("wheels_box", width = 3),
+              valueBoxOutput("cash_box", width = 3)
+            )
             # fluidRow(box(width = 12, uiOutput("expense_boxes")))
           ),
           box(
@@ -276,14 +288,23 @@ app_ui <- function(request) {
             width = 12L,
             fluidRow(
               column(
-                width = 4,
+                width = 3,
                 textInput(
                   inputId = "asset_name",
                   label = "Asset Name"
                 )
               ),
               column(
-                width = 4,
+                width = 3,
+                selectizeInput(
+                  inputId = "asset_category",
+                  label = "Asset Category",
+                  choices = c("Retirement", "Cash", "Vehicle", "Property", "Other"),
+                  selected = "Retirement"
+                )
+              ),
+              column(
+                width = 3,
                 numericInput(
                   inputId = "asset_value",
                   label = "Asset Value",
@@ -294,7 +315,7 @@ app_ui <- function(request) {
                 )
               ),
               column(
-                width = 4,
+                width = 3,
                 numericInput(
                   inputId = "asset_growth",
                   label = "Asset Growth",

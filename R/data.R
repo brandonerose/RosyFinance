@@ -14,6 +14,7 @@ BLANK_EXPENSES <- data.frame(
 )
 BLANK_ASSETS <- data.frame(
   name = character(0),
+  category = character(0),
   value = integer(0),
   growth = numeric(0),
   contribution = integer(0),
@@ -154,6 +155,7 @@ FinancialData <- R6::R6Class(
       invisible(self)
     },
     add_asset = function(name,
+                         category,
                          value,
                          growth = 0,
                          contribution = 0,
@@ -171,6 +173,7 @@ FinancialData <- R6::R6Class(
           entry = transform_data_assets(
             data.frame(
               name = name,
+              category = category,
               value = value,
               growth = growth,
               contribution = contribution,
@@ -851,18 +854,81 @@ load_sample_finances <- function() {
   x$add_expense("Pet Insurance", "Health", 80)
   x$add_expense("Spotify", "Media", 17)
   # assets
-  x$add_asset("Checking", 5000)
-  x$add_asset("Emergency Fund", 3000)
-  x$add_asset("Car 1", 6000, -0.1)
-  x$add_asset("Car 2", 15000, -0.1)
-  x$add_asset("Retirement 1", 11000, 0.10, 5719, 7310, "Pre", "Income 1")
-  x$add_asset("Retirement 2", 40000, 0.10, 2000, 1000, "Pre", "Income 2")
-  x$add_asset("IRA 1", 3000, 0.10, 7500, 0, "Post")
-  x$add_asset("IRA 2", 1000, 0.10, 7500, 0, "Post")
-  x$add_asset("Life Insurance Cash Value", 18000, 0.10, 276)
+  x$add_asset(
+    name = "Checking",
+    category = "Cash",
+    value = 5000
+  )
+  x$add_asset(
+    name = "Emergency Fund",
+    category = "Cash",
+    value = 3000
+  )
+  x$add_asset(
+    name = "Car 1",
+    category = "Vehicle",
+    value = 6000,
+    growth = -0.1
+  )
+  x$add_asset(
+    name = "Car 2",
+    category = "Vehicle",
+    value = 15000,
+    growth = -0.1
+  )
+  x$add_asset(
+    name = "Retirement 1",
+    category = "Retirement",
+    value = 11000,
+    growth = 0.10,
+    contribution = 5719,
+    employer_contribution = 7310,
+    contribution_tax_type = "Pre",
+    income_link = "Income 1"
+  )
+  x$add_asset(
+    name = "Retirement 2",
+    category = "Retirement",
+    value = 40000,
+    growth = 0.10,
+    contribution = 2000,
+    employer_contribution = 1000,
+    contribution_tax_type = "Pre",
+    income_link = "Income 2"
+  )
+  x$add_asset(
+    name = "IRA 1",
+    category = "Retirement",
+    value = 3000,
+    growth = 0.10,
+    contribution = 7500,
+    employer_contribution = 0
+  )
+  x$add_asset(
+    name = "IRA 2",
+    category = "Retirement",
+    value = 1000,
+    growth = 0.10,
+    contribution = 7500,
+    employer_contribution = 0
+  )
+  x$add_asset(
+    name = "Primary House",
+    category = "Property",
+    value = 400000,
+    growth = 0.04
+  )
+  x$add_asset(
+    name = "Life Insurance Cash Value",
+    category = "Insurance",
+    value = 18000,
+    growth = 0.10,
+    contribution = 276
+  )
   # debts
   x$add_debt("Federal Student Loan 1", 350000, 0.056, 442)
   x$add_debt("Federal Student Loan 2", 135000, 0.065, 360)
   x$add_debt("Private Student Loan 2", 130000, 0.046, 1090)
+  x$add_debt("Mortgage", 350000, 0.07, 3322)
   x
 }

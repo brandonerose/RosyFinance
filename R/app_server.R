@@ -164,6 +164,151 @@ app_server <- function(input, output, session) {
       color = "red"
     )
   })
+  output$invested_box <- renderValueBox({
+    appreciates <- values$finances$data$assets[which(values$finances$data$assets$growth > 0), ]
+    appreciates <- appreciates[which(appreciates$category %in% c("Investment","Retirement")),]
+    worth <- appreciates$value |> sum(na.rm = T)
+    growth <- appreciates$yearly_growth |> sum(na.rm = T)
+    if (!input$time_mode_yearly) {
+      worth <- worth / 12
+      growth <- growth / 12
+    }
+    perc <- (growth / worth * 100) |> round(1) |> paste0("%")
+    value <- clean_num(worth) |> paste0(" (", perc, " Growth)")
+    valueBox(
+      value = value,
+      subtitle = "Invested",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$contribution_box <- renderValueBox({
+    appreciates <- values$finances$data$assets[which(values$finances$data$assets$growth > 0), ]
+    appreciates <- appreciates[which(appreciates$category %in% c("Investment","Retirement")),]
+    growth <- appreciates$yearly_growth |> sum(na.rm = T)
+    contribution <- appreciates$contribution |> sum(na.rm = T)
+    employer_contribution <- appreciates$employer_contribution |> sum(na.rm = T)
+    contribution <- contribution + employer_contribution
+    income <- values$finances$data$incomes$gross |> sum(na.rm = T)
+    if (!input$time_mode_yearly) {
+      growth <- growth / 12
+      income <- income / 12
+      contribution <- contribution / 12
+    }
+    perc <- (contribution / income * 100) |> round(1) |> paste0("%")
+    value <- clean_num(contribution) |> paste0(" (", perc, " Income)")
+    valueBox(
+      value = value,
+      subtitle = "Contribution",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$growth2_box <- renderValueBox({
+    appreciates <- values$finances$data$assets[which(values$finances$data$assets$growth > 0), ]
+    appreciates <- appreciates[which(appreciates$category %in% c("Investment","Retirement")),]
+    worth <- appreciates$value |> sum(na.rm = T)
+    growth <- appreciates$yearly_growth |> sum(na.rm = T)
+    contribution <- appreciates$contribution |> sum(na.rm = T)
+    employer_contribution <- appreciates$employer_contribution |> sum(na.rm = T)
+    contribution <- contribution + employer_contribution
+    if (!input$time_mode_yearly) {
+      worth <- worth / 12
+      growth <- growth / 12
+      contribution <- contribution / 12
+    }
+    perc <- (growth / contribution * 100) |> round(1) |> paste0("%")
+    value <- clean_num(growth) |> paste0(" (", perc, " Contribution)")
+    valueBox(
+      value = value,
+      subtitle = "Asset Growth",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$four_percent_box <- renderValueBox({
+    appreciates <- values$finances$data$assets[which(values$finances$data$assets$growth > 0), ]
+    appreciates <- appreciates[which(appreciates$category %in% c("Investment","Retirement")),]
+    worth <- appreciates$value |> sum(na.rm = T)
+    growth <- appreciates$yearly_growth |> sum(na.rm = T)
+    income <- values$finances$data$incomes$gross |> sum(na.rm = T)
+    if (!input$time_mode_yearly) {
+      worth <- worth / 12
+      growth <- growth / 12
+      income <- income / 12
+    }
+    supports <- worth * 0.04
+    perc <- (supports / income * 100) |> round(1) |> paste0("%")
+    value <- clean_num(supports) |> paste0(" (", perc, " Income)")
+    valueBox(
+      value = value,
+      subtitle = "4% Rule",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$pre_tax_box <- renderValueBox({
+    assets <- values$finances$data$assets
+    total <- assets$value |> sum(na.rm = TRUE)
+    assets <- assets[which(
+      assets$category %in% c("Investment", "Retirement") &
+        assets$contribution_tax_type == "Pre"
+    ), ]
+    value <- assets$value |> sum(na.rm = TRUE)
+    perc <- (value / total * 100) |> round(1) |> paste0("%")
+    value <- clean_num(value) |> paste0(" (", perc, ")")
+    valueBox(
+      value = value,
+      subtitle = "Pre Tax",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$post_tax_box <- renderValueBox({
+    assets <- values$finances$data$assets
+    total <- assets$value |> sum(na.rm = TRUE)
+    assets <- assets[which(
+      assets$category %in% c("Investment", "Retirement", "Property") &
+        assets$contribution_tax_type == "Post"
+    ), ]
+    value <- assets$value |> sum(na.rm = TRUE)
+    perc <- (value / total * 100) |> round(1) |> paste0("%")
+    value <- clean_num(value) |> paste0(" (", perc, ")")
+    valueBox(
+      value = value,
+      subtitle = "Post Tax",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$wheels_box <- renderValueBox({
+    assets <- values$finances$data$assets
+    total <- assets$value |> sum(na.rm = TRUE)
+    assets <- assets[which(assets$category == "Vehicle"),]
+    value <- assets$value |> sum(na.rm = TRUE)
+    perc <- (value / total * 100) |> round(1) |> paste0("%")
+    value <- clean_num(value) |> paste0(" (", perc, ")")
+    valueBox(
+      value = value,
+      subtitle = "Pre Tax",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
+  output$cash_box <- renderValueBox({
+    assets <- values$finances$data$assets
+    total <- assets$value |> sum(na.rm = TRUE)
+    assets <- assets[which(assets$category == "Cash"),]
+    value <- assets$value |> sum(na.rm = TRUE)
+    perc <- (value / total * 100) |> round(1) |> paste0("%")
+    value <- clean_num(value) |> paste0(" (", perc, ")")
+    valueBox(
+      value = value,
+      subtitle = "Cash",
+      icon = icon("dollar-sign"),
+      color = "green"
+    )
+  })
   # observe tables --------------
   # dt_incomes_rows_selected
   observe({
@@ -223,12 +368,16 @@ app_server <- function(input, output, session) {
     entry$employer_contribution <- 0
     entry$contribution_tax_type <- "Post"
     entry$income_link <- ""
+    entry$category
     if (is_something(input$dt_assets_rows_selected)) {
       entry <- values$finances$data$assets[input$dt_assets_rows_selected, ]
     }
     updateTextInput(session = session,
                     inputId = "asset_name",
                     value = entry$name)
+    updateSelectizeInput(session = session,
+                         inputId = "asset_category",
+                         selected = entry$category)
     updateNumericInput(session = session,
                        inputId = "asset_value",
                        value = entry$value)
@@ -250,11 +399,9 @@ app_server <- function(input, output, session) {
       inputId = "asset_contribution_tax_type",
       selected = entry$contribution_tax_type
     )
-    updateTextInput(
-      session = session,
-      inputId = "asset_income_link",
-      value = entry$income_link
-    )
+    updateTextInput(session = session,
+                    inputId = "asset_income_link",
+                    value = entry$income_link)
   })
   # dt_debts_rows_selected
   observe({
@@ -346,6 +493,7 @@ app_server <- function(input, output, session) {
       values$finances <- NULL
       values$finances <- finances$add_asset(
         name = input$asset_name,
+        category = input$asset_category,
         value = input$asset_value,
         growth = input$asset_growth,
         contribution = input$asset_contribution,
